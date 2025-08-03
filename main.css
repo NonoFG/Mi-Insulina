@@ -1,0 +1,81 @@
+body {
+  font-family: 'Open Sans', sans-serif;
+  margin: 0;
+  padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+.app-container {
+  max-width: 500px;
+  margin: auto;
+}
+
+header h1 {
+  text-align: center;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+input, button {
+  padding: 10px;
+  margin: 8px 0;
+  font-size: 1em;
+}
+
+button {
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.resultado {
+  margin-top: 20px;
+  font-size: 1.2em;
+  color: #0077cc;
+}
+
+.historial {
+  margin-top: 20px;
+  font-size: 0.9em;
+}
+
+.tema-selector {
+  margin-top: 30px;
+  text-align: center;
+}
+
+/* Tema claro (por defecto) */
+body[data-tema="claro"] {
+  background: #f9f9f9;
+  color: #222;
+}
+
+/* Tema oscuro */
+body[data-tema="oscuro"] {
+  background: #222;
+  color: #f0f0f0;
+}
+
+body[data-tema="oscuro"] input,
+body[data-tema="oscuro"] button {
+  background: #333;
+  color: #f0f0f0;
+  border: 1px solid #444;
+}
+footer {
+  margin-top: 40px;
+  padding: 20px 0;
+  text-align: center;
+  font-size: 0.9em;
+  color: #888;
+  border-top: 1px solid #ddd;
+}
+
+body[data-tema="oscuro"] footer {
+  color: #aaa;
+  border-top: 1px solid #444;
+}
