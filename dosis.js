@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     const fields = [
-      { id: "raciones", nombre: "raciones de comida (g)/carbohidratos" },
+      { id: "raciones", nombre: "raciones de carbohidratos" },
       { id: "glucosa", nombre: "nivel de glucosa" },
       { id: "relacion", nombre: "índice de insulina" },
       { id: "correccion", nombre: "factor de corrección" },
@@ -52,17 +52,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!valor) {
         campo.classList.add("error");
-        errorText.textContent = `Se te ha pasado completar este campo 😬.`;
+        errorText.textContent = `⚠️ Por favor, completa el campo de ${nombre}.`;
         hayErrores = true;
       } else if (isNaN(parseFloat(valor))) {
         campo.classList.add("error");
-        errorText.textContent = `❌ Ese valor en el campo ${nombre} no es muy legal. Tiene que ser un número.`;
+        errorText.textContent = `❌ El valor ingresado en ${nombre} no es válido. Debe ser un número.`;
         hayErrores = true;
       }
     });
 
     if (hayErrores) {
-      //resultadoDiv.textContent = "⚠️ Corrige los errores antes de continuar.";
+      resultadoDiv.textContent = "⚠️ Corrige los errores antes de continuar.";
       return;
     }
 
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const objetivo = parseFloat(form.objetivo.value);
 
     const comida = raciones * ic;
-    const correccion = (glucosa - objetivo) / fc;
+    const correccion = Math.max(0, (glucosa - objetivo) / fc);
     const sinRedondear = Math.max(0, comida + correccion);
     const dosisRedondeada = Math.round(sinRedondear * 2) / 2;
     const dosisTotal = dosisRedondeada.toFixed(1);
@@ -82,7 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
     resultadoDiv.textContent = `💉 Dosis recomendada: ${dosisTotal} unidades`;
 
     // Historial
-    const entrada = `🍽️ ${raciones} raciones, 🩸 ${glucosa} mg/dL de glucosa → 💉 ${dosisTotal} unidades de insulina`;
+    const textoRaciones = raciones === 1 ? "ración" : "raciones";
+    const entrada = `🍽️ ${raciones} ${textoRaciones}, 🩸 ${glucosa} mg/dL → 💉 ${dosisTotal}u`;
     historial.unshift(entrada);
     if (historial.length > 5) historial.pop();
 
