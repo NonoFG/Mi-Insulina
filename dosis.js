@@ -31,6 +31,37 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   // Historial en memoria
   const historial = [];
+  
+  // Lógica para seleccionar la comida por la hora
+  const horaActual = new Date().getHours();
+  const minutosActuales = new Date().getMinutes();
+
+  const getComidaPorHora = (hora, minutos) => {
+    // Desayuno: de 03:00 a 12:29
+    if ((hora >= 3 && hora < 12) || (hora === 12 && minutos < 30) || (hora >= 0 && hora < 3)) {
+      return "desayuno";
+    }
+    // Comida: de 12:30 a 16:29
+    if ((hora === 12 && minutos >= 30) || (hora > 12 && hora < 16) || (hora === 16 && minutos < 30)) {
+      return "comida";
+    }
+    // Merienda: de 16:30 a 19:59
+    if ((hora === 16 && minutos >= 30) || (hora > 16 && hora < 20)) {
+      return "merienda";
+    }
+    // Cena: de 20:00 a 02:59
+    if (hora >= 20 || hora < 3) {
+      return "cena";
+    }
+    return "desayuno"; // Valor por defecto
+  };
+
+  const comidaPorDefecto = getComidaPorHora(horaActual, minutosActuales);
+  const radioComida = document.querySelector(`input[name="comida"][data-comida-nombre="${comidaPorDefecto}"]`);
+  if (radioComida) {
+    radioComida.checked = true;
+  }
+  
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();

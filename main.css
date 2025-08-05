@@ -177,7 +177,6 @@ body[data-tema="oscuro"] input.error {
   margin-top: -5px;
   margin-bottom: 10px;
   display: block;
-  /* CAMBIO APLICADO: HACE QUE EL TEXTO DE ERROR OCUPE AMBAS COLUMNAS DE LA CUADRÍCULA */
   grid-column: 1 / -1;
   text-align: left;
 }
