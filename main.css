@@ -169,7 +169,6 @@ input.error {
 
 body[data-tema="oscuro"] input.error {
   background-color: #442222;
-    border: 2px solid crimson;
 }
 
 .error-text {
@@ -178,9 +177,60 @@ body[data-tema="oscuro"] input.error {
   margin-top: -5px;
   margin-bottom: 10px;
   display: block;
+  /* CAMBIO APLICADO: HACE QUE EL TEXTO DE ERROR OCUPE AMBAS COLUMNAS DE LA CUADRÍCULA */
+  grid-column: 1 / -1;
+  text-align: left;
+}
+/* Estilos para el selector de comida */
+.campo {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) 2fr;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .campo label {
+  margin-bottom: 0;
+  text-align: left;
+}
+
+.campo input {
+  width: 100%;
+}
+
+.campo .selector-opciones {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 5px;
+}
+
+.campo .comida-opcion {
+  cursor: pointer;
+}
+
+.campo .comida-opcion input[type="radio"] {
+  display: none;
+}
+
+.campo .comida-opcion span {
+  padding: 5px 8px;
+  border: 2px solid var(--color-principal);
+  border-radius: 12px;
+  color: var(--color-principal);
+  transition: all 0.2s ease;
+  font-size: 0.85em;
   display: block;
-  margin-bottom: 5px; /* Opcional: para añadir un pequeño espacio entre la etiqueta y el input */
+  text-align: center;
+  white-space: nowrap;
+}
+
+.campo .comida-opcion input[type="radio"]:checked + span {
+  background-color: var(--color-principal);
+  color: white;
+}
+
+.comida-selector {
+  margin-bottom: 30px;
 }

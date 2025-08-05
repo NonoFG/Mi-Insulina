@@ -20,7 +20,15 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("tema", radio.value);
     });
   });
+  // NUEVO: Manejar el selector de comida para actualizar la relación I/C
+  const comidaRadios = document.querySelectorAll('input[name="comida"]');
+  const relacionInput = document.getElementById("relacion");
 
+  comidaRadios.forEach(radio => {
+    radio.addEventListener("change", () => {
+      relacionInput.value = radio.value;
+    });
+  });
   // Historial en memoria
   const historial = [];
 
@@ -52,17 +60,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!valor) {
         campo.classList.add("error");
-        errorText.textContent = `⚠️ Por favor, completa el campo de ${nombre}.`;
+        errorText.textContent = `Se te ha pasado rellenar este campo. 😬`;
         hayErrores = true;
       } else if (isNaN(parseFloat(valor))) {
         campo.classList.add("error");
-        errorText.textContent = `❌ El valor ingresado en ${nombre} no es válido. Debe ser un número.`;
+        errorText.textContent = `❌ El valor no es válido. Tiene que ser un número. 😬`;
         hayErrores = true;
       }
     });
 
     if (hayErrores) {
-      resultadoDiv.textContent = "⚠️ Corrige los errores antes de continuar.";
+      //resultadoDiv.textContent = "⚠️ Corrige los errores antes de continuar.";
       return;
     }
 

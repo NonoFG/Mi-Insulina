@@ -18,7 +18,27 @@
 
     <main>
       <form id="dosisForm" novalidate>
-
+        <div class="campo comida-selector">
+          <label>¿Qué comida es?</label>
+          <div class="selector-opciones">
+            <label class="comida-opcion">
+              <input type="radio" name="comida" value="1.75" data-comida-nombre="desayuno" checked>
+              <span>Desayuno</span>
+            </label>
+            <label class="comida-opcion">
+              <input type="radio" name="comida" value="2" data-comida-nombre="comida">
+              <span>Comida</span>
+            </label>
+            <label class="comida-opcion">
+              <input type="radio" name="comida" value="2" data-comida-nombre="merienda">
+              <span>Merienda</span>
+            </label>
+            <label class="comida-opcion">
+              <input type="radio" name="comida" value="1.25" data-comida-nombre="cena">
+              <span>Cena</span>
+            </label>
+          </div>
+        </div>
         <div class="campo">
           <label for="raciones">Raciones (u):</label>
           <input type="number" id="raciones" name="raciones" placeholder=" " required
@@ -35,9 +55,10 @@
           <small class="error-text" id="error-glucosa"></small>
         </div>
 
+
         <div class="campo">
           <label for="relacion">Relación I/C:</label>
-          <input type="number" id="relacion" name="relacion" placeholder=" " value="2" required
+          <input type="number" id="relacion" name="relacion" placeholder=" " value="1.75" required
             oninvalid="this.setCustomValidity('Se te ha pasado meter la relación I/C 🍬😅')"
             oninput="this.setCustomValidity('')">
           <small class="error-text" id="error-relacion"></small>
