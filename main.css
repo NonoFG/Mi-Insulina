@@ -24,21 +24,22 @@ form {
   display: flex;
   flex-direction: column;
 }
-/* Asegura que los campos de entrada y el botón ocupen el 100% del ancho de su contenedor. */
-input {
-  width: 100%;
-  box-sizing: border-box; /* Esto asegura que el padding y el borde no aumenten el ancho total */
+
+/* Estilos de input, select y botón */
+input, select {
+  box-sizing: border-box;
   padding: 10px;
   border: 1px solid var(--color-principal);
   border-radius: 12px;
   margin: 8px 0;
   font-size: 1em;
   color: var(--color-principal);
+  width: 100%; /* Asegura que también ocupe todo el ancho */
 }
 
 button {
   width: 100%;
-  box-sizing: border-box; /* Esto asegura que el padding y el borde no aumenten el ancho total */
+  box-sizing: border-box;
   padding: 10px;
   background-color: var(--color-principal);
   color: white;
@@ -48,15 +49,6 @@ button {
   font-size: 1em;
   cursor: pointer;
 }
-
-/* Centra el formulario completo en la página */
-.app-container {
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-
 
 .resultado {
   margin-top: 20px;
@@ -69,28 +61,33 @@ button {
   font-size: 0.9em;
 }
 
+/* Estilos de los selectores de tema y comida */
 .tema-selector {
   margin-top: 30px;
   text-align: center;
 }
 
-/* Tema claro (por defecto) */
 body[data-tema="claro"] {
   background: #f9f9f9;
   color: #222;
 }
 
-/* Tema oscuro */
 body[data-tema="oscuro"] {
   background: #222;
   color: #f0f0f0;
 }
 
 body[data-tema="oscuro"] input,
+body[data-tema="oscuro"] select,
 body[data-tema="oscuro"] button {
   background: #333;
   color: #f0f0f0;
   border: 1px solid #444;
+}
+
+body[data-tema="oscuro"] footer {
+  color: #aaa;
+  border-top: 1px solid #444;
 }
 
 footer {
@@ -102,11 +99,6 @@ footer {
   border-top: 1px solid #ddd;
 }
 
-body[data-tema="oscuro"] footer {
-  color: #aaa;
-  border-top: 1px solid #444;
-}
-
 input[type="radio"] {
   accent-color: var(--color-principal);
 }
@@ -115,9 +107,9 @@ input[type="radio"] {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  margin-top: 30px;
 }
 
+/* Estilos para el selector de tema */
 .tema-opcion {
   display: flex;
   align-items: center;
@@ -142,32 +134,48 @@ input[type="radio"] {
   color: white;
 }
 
-
-/* Estado inicial: borde gris para inputs vacíos */
-input:placeholder-shown:not(.error) {
+/* Estado de los inputs */
+input:placeholder-shown:not(.error),
+select:not(.error) {
   border: 1px solid #ccc;
   color: #ccc;
 }
 
-/* Inputs con valor (no placeholder visible) */
-input:not(:placeholder-shown):not(.error) {
+
+/* Estado de los inputs y select */
+input:placeholder-shown:not(.error),
+select:not(.error):not(.selected) {
+  border: 1px solid #ccc;
+  color: #ccc;
+}
+
+input:not(:placeholder-shown):not(.error),
+select.selected:not(.error) {
   border: 1px solid var(--color-principal);
   color: var(--color-principal);
 }
 
-/* En modo oscuro: ajustar el gris */
-body[data-tema="oscuro"] input:placeholder-shown:not(.error) {
+body[data-tema="oscuro"] input:placeholder-shown:not(.error),
+body[data-tema="oscuro"] select:not(.error):not(.selected) {
   border: 1px solid #444;
   color: #666;
 }
 
-/* Error: borde rojo, ya está bien definido */
-input.error {
+body[data-tema="oscuro"] input:not(:placeholder-shown):not(.error),
+body[data-tema="oscuro"] select.selected:not(.error) {
+  border: 1px solid var(--color-principal);
+  color: var(--color-principal);
+}
+
+
+input.error,
+select.error {
   border: 2px solid crimson;
   background-color: #ffe6e6;
 }
 
-body[data-tema="oscuro"] input.error {
+body[data-tema="oscuro"] input.error,
+body[data-tema="oscuro"] select.error {
   background-color: #442222;
 }
 
@@ -180,6 +188,7 @@ body[data-tema="oscuro"] input.error {
   grid-column: 1 / -1;
   text-align: left;
 }
+
 /* Estilos para el selector de comida */
 .campo {
   display: grid;
@@ -234,21 +243,22 @@ body[data-tema="oscuro"] input.error {
   margin-bottom: 30px;
 }
 
-/* ---------------------------------------------------- */
+.comida-confort{
+    margin-bottom: 25px;
+}
+
+
 /* NUEVOS ESTILOS PARA DISPOSITIVOS MÓVILES */
-/* ---------------------------------------------------- */
 @media (max-width: 768px) {
   .campo .selector-opciones {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-  }
-
-  .campo .comida-opcion {
-    text-align: center;
+    justify-items: center;
   }
 
   .campo .comida-opcion span {
     padding: 10px;
+    font-size: 1em;
   }
 }

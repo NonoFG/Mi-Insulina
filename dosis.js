@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   // Historial en memoria
   const historial = [];
-  
+
   // Lógica para seleccionar la comida por la hora
   const horaActual = new Date().getHours();
   const minutosActuales = new Date().getMinutes();
@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return "desayuno"; // Valor por defecto
   };
 
+  
   const comidaPorDefecto = getComidaPorHora(horaActual, minutosActuales);
   const radioComida = document.querySelector(`input[name="comida"][data-comida-nombre="${comidaPorDefecto}"]`);
   if (radioComida) {
