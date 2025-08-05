@@ -27,24 +27,46 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const fields = ["raciones", "glucosa", "relacion", "correccion", "objetivo"];
+    const fields = [
+      { id: "raciones", nombre: "raciones de comida (g)/carbohidratos" },
+      { id: "glucosa", nombre: "nivel de glucosa" },
+      { id: "relacion", nombre: "índice de insulina" },
+      { id: "correccion", nombre: "factor de corrección" },
+      { id: "objetivo", nombre: "glucosa objetivo" },
+    ];
+
     let hayErrores = false;
 
     // Limpiar errores anteriores
-    fields.forEach(id => {
+    fields.forEach(({ id }) => {
       const campo = form[id];
+      const errorText = document.getElementById(`error-${id}`);
       campo.classList.remove("error");
-      if (!campo.value || isNaN(parseFloat(campo.value))) {
+      errorText.textContent = "";
+    });
+
+    fields.forEach(({ id, nombre }) => {
+      const campo = form[id];
+      const valor = campo.value.trim();
+      const errorText = document.getElementById(`error-${id}`);
+
+      if (!valor) {
         campo.classList.add("error");
+        errorText.textContent = `Se te ha pasado completar este campo 😬.`;
+        hayErrores = true;
+      } else if (isNaN(parseFloat(valor))) {
+        campo.classList.add("error");
+        errorText.textContent = `❌ Ese valor en el campo ${nombre} no es muy legal. Tiene que ser un número.`;
         hayErrores = true;
       }
     });
 
     if (hayErrores) {
-      resultadoDiv.textContent = "⚠️ Completa todos los campos correctamente.";
+      //resultadoDiv.textContent = "⚠️ Corrige los errores antes de continuar.";
       return;
     }
 
+    // Cálculos
     const raciones = parseFloat(form.raciones.value);
     const glucosa = parseFloat(form.glucosa.value);
     const ic = parseFloat(form.relacion.value);
@@ -59,8 +81,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     resultadoDiv.textContent = `💉 Dosis recomendada: ${dosisTotal} unidades`;
 
-    // Guardar en historial
-    const entrada = `🍽️ ${raciones}g CH, 🩸 ${glucosa} mg/dL → 💉 ${dosisTotal}u`;
+    // Historial
+    const entrada = `🍽️ ${raciones} raciones, 🩸 ${glucosa} mg/dL de glucosa → 💉 ${dosisTotal} unidades de insulina`;
     historial.unshift(entrada);
     if (historial.length > 5) historial.pop();
 

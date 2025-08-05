@@ -18,30 +18,46 @@
 
     <main>
       <form id="dosisForm" novalidate>
-        <label for="raciones">Raciones (u):</label>
-        <input type="number" id="raciones" name="raciones" placeholder=" "  required
-          oninvalid="this.setCustomValidity('Se te ha pasado meter ls raciones 🍰😅')"
-          oninput="this.setCustomValidity('')">
 
-        <label for="glucosa">Glucosa actual (mg/dL):</label>
-        <input type="number" id="glucosa" name="glucosa" placeholder=" "  required
-          oninvalid="this.setCustomValidity('Se te ha pasado meter la glucosa actual 💧😅')"
-          oninput="this.setCustomValidity('')">
+        <div class="campo">
+          <label for="raciones">Raciones (u):</label>
+          <input type="number" id="raciones" name="raciones" placeholder=" " required
+            oninvalid="this.setCustomValidity('Se te ha pasado meter las raciones 🍰😅')"
+            oninput="this.setCustomValidity('')">
+          <small class="error-text" id="error-raciones"></small>
+        </div>
 
-        <label for="relacion">Relación I/C:</label>
-        <input type="number" id="relacion" name="relacion"  placeholder=" "  value="2" required
-          oninvalid="this.setCustomValidity('Se te ha pasado meter la relación I/C 🍬😅')"
-          oninput="this.setCustomValidity('')">
+        <div class="campo">
+          <label for="glucosa">Glucosa actual (mg/dL):</label>
+          <input type="number" id="glucosa" name="glucosa" placeholder=" " required
+            oninvalid="this.setCustomValidity('Se te ha pasado meter la glucosa actual 💧😅')"
+            oninput="this.setCustomValidity('')">
+          <small class="error-text" id="error-glucosa"></small>
+        </div>
 
-        <label for="correccion">Factor de corrección:</label>
-        <input type="number" id="correccion" name="correccion" placeholder=" "  value="40" required
-          oninvalid="this.setCustomValidity('Se te ha pasado meter el factor de corrección 💉😅')"
-          oninput="this.setCustomValidity('')">
+        <div class="campo">
+          <label for="relacion">Relación I/C:</label>
+          <input type="number" id="relacion" name="relacion" placeholder=" " value="2" required
+            oninvalid="this.setCustomValidity('Se te ha pasado meter la relación I/C 🍬😅')"
+            oninput="this.setCustomValidity('')">
+          <small class="error-text" id="error-relacion"></small>
+        </div>
 
-        <label for="objetivo">Glucosa objetivo:</label>
-        <input type="number" id="objetivo" name="objetivo" placeholder=" "  value="115" required
-          oninvalid="this.setCustomValidity('Se te ha pasado meter la glucosa objetivo 🎯😅')"
-          oninput="this.setCustomValidity('')">
+        <div class="campo">
+          <label for="correccion">Factor de corrección:</label>
+          <input type="number" id="correccion" name="correccion" placeholder=" " value="40" required
+            oninvalid="this.setCustomValidity('Se te ha pasado meter el factor de corrección 💉😅')"
+            oninput="this.setCustomValidity('')">
+          <small class="error-text" id="error-correccion"></small>
+        </div>
+
+        <div class="campo">
+          <label for="objetivo">Glucosa objetivo:</label>
+          <input type="number" id="objetivo" name="objetivo" placeholder=" " value="115" required
+            oninvalid="this.setCustomValidity('Se te ha pasado meter la glucosa objetivo 🎯😅')"
+            oninput="this.setCustomValidity('')">
+          <small class="error-text" id="error-objetivo"></small>
+        </div>
 
         <button type="submit">Calcular dosis</button>
       </form>
@@ -63,7 +79,6 @@
 
     <footer>
       <p>© 2025 Mi Insulina — Para ti, <em>bombón</em></p>
-
     </footer>
   </div>
 
