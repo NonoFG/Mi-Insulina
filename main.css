@@ -233,3 +233,22 @@ body[data-tema="oscuro"] input.error {
 .comida-selector {
   margin-bottom: 30px;
 }
+
+/* ---------------------------------------------------- */
+/* NUEVOS ESTILOS PARA DISPOSITIVOS MÓVILES */
+/* ---------------------------------------------------- */
+@media (max-width: 768px) {
+  .campo .selector-opciones {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .campo .comida-opcion {
+    text-align: center;
+  }
+
+  .campo .comida-opcion span {
+    padding: 10px;
+  }
+}
