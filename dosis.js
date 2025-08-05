@@ -27,25 +27,40 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const carbs = parseFloat(form.carbs.value);
+    const fields = ["raciones", "glucosa", "relacion", "correccion", "objetivo"];
+    let hayErrores = false;
+
+    // Limpiar errores anteriores
+    fields.forEach(id => {
+      const campo = form[id];
+      campo.classList.remove("error");
+      if (!campo.value || isNaN(parseFloat(campo.value))) {
+        campo.classList.add("error");
+        hayErrores = true;
+      }
+    });
+
+    if (hayErrores) {
+      resultadoDiv.textContent = "⚠️ Completa todos los campos correctamente.";
+      return;
+    }
+
+    const raciones = parseFloat(form.raciones.value);
     const glucosa = parseFloat(form.glucosa.value);
     const ic = parseFloat(form.relacion.value);
     const fc = parseFloat(form.correccion.value);
     const objetivo = parseFloat(form.objetivo.value);
 
-    if (isNaN(carbs) || isNaN(glucosa) || isNaN(ic) || isNaN(fc) || isNaN(objetivo)) {
-      resultadoDiv.textContent = "⚠️ Completa todos los campos correctamente.";
-      return;
-    }
-
-    const comida = carbs / ic;
+    const comida = raciones * ic;
     const correccion = (glucosa - objetivo) / fc;
-    const dosisTotal = Math.max(0, comida + correccion).toFixed(2);
+    const sinRedondear = Math.max(0, comida + correccion);
+    const dosisRedondeada = Math.round(sinRedondear * 2) / 2;
+    const dosisTotal = dosisRedondeada.toFixed(1);
 
     resultadoDiv.textContent = `💉 Dosis recomendada: ${dosisTotal} unidades`;
 
     // Guardar en historial
-    const entrada = `🍽️ ${carbs}g CH, 🩸 ${glucosa} mg/dL → 💉 ${dosisTotal}u`;
+    const entrada = `🍽️ ${raciones}g CH, 🩸 ${glucosa} mg/dL → 💉 ${dosisTotal}u`;
     historial.unshift(entrada);
     if (historial.length > 5) historial.pop();
 

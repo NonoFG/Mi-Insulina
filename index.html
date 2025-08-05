@@ -18,21 +18,31 @@
     </header>
 
     <main>
-      <form id="dosisForm">
-        <label for="carbs">Carbohidratos (g):</label>
-        <input type="number" id="carbs" name="carbs" required>
+      <form id="dosisForm" novalidate>
+        <label for="raciones">Raciones (u):</label>
+        <input type="number" id="raciones" name="raciones" required
+          oninvalid="this.setCustomValidity('Se te ha pasado meter ls raciones 🍰😅')"
+          oninput="this.setCustomValidity('')">
 
-        <label for="glucosa">Glucemia actual (mg/dL):</label>
-        <input type="number" id="glucosa" name="glucosa" required>
+        <label for="glucosa">Glucosa actual (mg/dL):</label>
+        <input type="number" id="glucosa" name="glucosa" required
+          oninvalid="this.setCustomValidity('Se te ha pasado meter la glucosa actual 💧😅')"
+          oninput="this.setCustomValidity('')">
 
         <label for="relacion">Relación I/C:</label>
-        <input type="number" id="relacion" name="relacion" value="10" required>
+        <input type="number" id="relacion" name="relacion"  value="2" required
+          oninvalid="this.setCustomValidity('Se te ha pasado meter la relación I/C 🍬😅')"
+          oninput="this.setCustomValidity('')">
 
         <label for="correccion">Factor de corrección:</label>
-        <input type="number" id="correccion" name="correccion" value="50" required>
+        <input type="number" id="correccion" name="correccion" value="40" required
+          oninvalid="this.setCustomValidity('Se te ha pasado meter el factor de corrección 💉😅')"
+          oninput="this.setCustomValidity('')">
 
-        <label for="objetivo">Glucemia objetivo:</label>
-        <input type="number" id="objetivo" name="objetivo" value="100" required>
+        <label for="objetivo">Glucosa objetivo:</label>
+        <input type="number" id="objetivo" name="objetivo" value="115" required
+          oninvalid="this.setCustomValidity('Se te ha pasado meter la glucosa objetivo 🎯😅')"
+          oninput="this.setCustomValidity('')">
 
         <button type="submit">Calcular dosis</button>
       </form>
