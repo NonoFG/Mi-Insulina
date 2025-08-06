@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("tema", radio.value);
     });
   });
-  // NUEVO: Manejar el selector de comida para actualizar la relación I/C
+  //Manejar el selector de comida para actualizar la relación I/C
   const comidaRadios = document.querySelectorAll('input[name="comida"]');
   const relacionInput = document.getElementById("relacion");
 
@@ -29,6 +29,31 @@ document.addEventListener("DOMContentLoaded", () => {
       relacionInput.value = radio.value;
     });
   });
+
+  const comidaConfortSelect = document.getElementById("comida-confort");
+  const racionesInput = document.getElementById("raciones");
+
+  comidaConfortSelect.addEventListener("change", () => {
+    const selectedOption = comidaConfortSelect.value;
+    let racionesValor = ''; // Deja el valor vacío por defecto
+
+    switch (selectedOption) {
+      case 'gyozas':
+        racionesValor = 5.29;
+        break;
+      case 'ensalada-cesar':
+        racionesValor = 1.47;
+        break;
+      case 'patatas-de-lux':
+        racionesValor = 8.63;
+        break;
+      // 'not-this-time' y otras opciones no harán nada, el campo se mantendrá vacío o con el valor que tenga
+      default:
+        racionesValor = '';
+    }
+    racionesInput.value = racionesValor;
+  });
+
   // Historial en memoria
   const historial = [];
 
@@ -56,13 +81,13 @@ document.addEventListener("DOMContentLoaded", () => {
     return "desayuno"; // Valor por defecto
   };
 
-  
+
   const comidaPorDefecto = getComidaPorHora(horaActual, minutosActuales);
   const radioComida = document.querySelector(`input[name="comida"][data-comida-nombre="${comidaPorDefecto}"]`);
   if (radioComida) {
     radioComida.checked = true;
   }
-  
+
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
