@@ -206,13 +206,22 @@ body[data-tema="oscuro"] select.error {
 .campo input {
   width: 100%;
 }
-
+/*
 .campo .selector-opciones {
   display: flex;
   justify-content: space-between;
   flex-wrap: nowrap;
   gap: 5px;
+}*/
+.campo .selector-opciones {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Divide en 4 columnas iguales */
+  gap: 5px;
+  /*justify-content: space-between;
+  flex-wrap: nowrap;*/
+    justify-items: center;
 }
+
 
 .campo .comida-opcion {
   cursor: pointer;
@@ -221,7 +230,20 @@ body[data-tema="oscuro"] select.error {
 .campo .comida-opcion input[type="radio"] {
   display: none;
 }
+.campo .comida-opcion span {
+  padding: 5px 8px;
+  border: 2px solid var(--color-principal);
+  border-radius: 12px;
+  color: var(--color-principal);
+  transition: all 0.2s ease;
+  font-size: 0.85em;
+  display: block;
+  /* Añade esta línea para centrar el texto dentro de cada botón */
+  text-align: center;
+  min-width: 50px; 
+}
 
+/*
 .campo .comida-opcion span {
   padding: 5px 8px;
   border: 2px solid var(--color-principal);
@@ -232,7 +254,7 @@ body[data-tema="oscuro"] select.error {
   display: block;
   text-align: center;
   white-space: nowrap;
-}
+}*/
 
 .campo .comida-opcion input[type="radio"]:checked + span {
   background-color: var(--color-principal);
@@ -251,7 +273,7 @@ body[data-tema="oscuro"] select.error {
 /* NUEVOS ESTILOS PARA DISPOSITIVOS MÓVILES */
 @media (max-width: 768px) {
   .campo .selector-opciones {
-    display: grid;
+    /*display: grid;*/
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     justify-items: center;
@@ -260,5 +282,6 @@ body[data-tema="oscuro"] select.error {
   .campo .comida-opcion span {
     padding: 10px;
     font-size: 1em;
+    min-width: 70px; 
   }
 }
