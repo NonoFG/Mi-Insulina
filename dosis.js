@@ -62,8 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const minutosActuales = new Date().getMinutes();
 
   const getComidaPorHora = (hora, minutos) => {
-    // Desayuno: de 03:00 a 12:29
-    if ((hora >= 3 && hora < 12) || (hora === 12 && minutos < 30) || (hora >= 0 && hora < 3)) {
+    // Desayuno: de 04:00 a 12:29
+    if ((hora >= 4 && hora < 12) || (hora === 12 && minutos < 30) || (hora >= 0 && hora < 4)) {
       return "desayuno";
     }
     // Comida: de 12:30 a 16:29
@@ -74,8 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if ((hora === 16 && minutos >= 30) || (hora > 16 && hora < 20)) {
       return "merienda";
     }
-    // Cena: de 20:00 a 02:59
-    if (hora >= 20 || hora < 3) {
+    // Cena: de 20:00 a 03:59
+    if (hora >= 20 || hora < 4) {
       return "cena";
     }
     return "desayuno"; // Valor por defecto
@@ -86,6 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const radioComida = document.querySelector(`input[name="comida"][data-comida-nombre="${comidaPorDefecto}"]`);
   if (radioComida) {
     radioComida.checked = true;
+    radioComida.dispatchEvent(new Event('change'));
   }
 
 
