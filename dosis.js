@@ -5,14 +5,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const temaRadios = document.querySelectorAll('input[name="tema"]');
   const body = document.body;
-
+/*
   // Cargar tema anterior si existe
   const temaGuardado = localStorage.getItem("tema");
   if (temaGuardado) {
     body.setAttribute("data-tema", temaGuardado);
     document.querySelector(`input[value="${temaGuardado}"]`).checked = true;
-  }
+  }*/
 
+  // --- 🌙 Lógica de Tema Automático ---
+  const setTemaPorHora = () => {
+    const hora = new Date().getHours();
+    // Define el rango horario para el modo oscuro
+    // Fuera de ese rango, será modo claro.
+    if (hora >= 20 || hora < 6) {
+      return "oscuro"; // Modo oscuro
+    } else {
+      return "claro"; // Modo claro
+    }
+  };
+
+  // 0. Determinar el tema inicial
+/*
+  const temaGuardado = localStorage.getItem("tema");
+  const temaInicial = temaGuardado ? temaGuardado : setTemaPorHora(); // Prioriza el tema guardado
+  */
+// 1. Determinar el tema inicial (SIEMPRE por hora)
+  const temaInicial = setTemaPorHora();
+
+  // 2. Aplicar el tema inicial
+  body.setAttribute("data-tema", temaInicial);
+
+  // 3. Marcar el radio button correcto
+  const radioInicial = document.querySelector(`input[value="${temaInicial}"]`);
+  if (radioInicial) {
+    radioInicial.checked = true;
+  }
+  
+  // 4. Cambiar tema manualmente (y guardarlo)
+  temaRadios.forEach(radio => {
+    radio.addEventListener("change", () => {
+      body.setAttribute("data-tema", radio.value);
+      localStorage.setItem("tema", radio.value);
+    });
+  });
+  // --- ----------------------------- ---
+/*
   // Cambiar tema manualmente
   temaRadios.forEach(radio => {
     radio.addEventListener("change", () => {
@@ -20,6 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("tema", radio.value);
     });
   });
+*/
+  
   //Manejar el selector de comida para actualizar la relación I/C
   const comidaRadios = document.querySelectorAll('input[name="comida"]');
   const relacionInput = document.getElementById("relacion");
