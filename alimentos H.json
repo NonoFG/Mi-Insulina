@@ -1,0 +1,1751 @@
+
+{
+  "01_Lácteos": [
+    {"name": "Leche (entera, semi, desnatada)", "carbsPer100": 5.0},
+    {"name": "Yogur natural", "carbsPer100": 5.0},
+    {"name": "Yogur desnatado", "carbsPer100": 5.0},
+    {"name": "Cuajada", "carbsPer100": 5.7},
+    {"name": "Kefir", "carbsPer100": 5.0},
+    {"name": "Queso fresco", "carbsPer100": 4.0},
+    {"name": "Natillas / Flan", "carbsPer100": 20.0},
+    {"name": "Arroz con leche", "carbsPer100": 15.4}
+  ],
+  "02_Cereales_y_Derivados": [
+    {"name": "Arroz blanco/integral (crudo)", "carbsPer100": 76.9},
+    {"name": "Pasta alimenticia (cruda)", "carbsPer100": 71.4},
+    {"name": "Avena en copos", "carbsPer100": 66.7},
+    {"name": "Cuscús (crudo)", "carbsPer100": 76.9},
+    {"name": "Maíz en grano (lata)", "carbsPer100": 20.0},
+    {"name": "Harina de trigo/maíz", "carbsPer100": 66.7},
+    {"name": "Pan blanco", "carbsPer100": 50.0},
+    {"name": "Pan integral", "carbsPer100": 43.5},
+    {"name": "Pan de molde", "carbsPer100": 50.0},
+    {"name": "Biscotes / Pan tostado", "carbsPer100": 66.7},
+    {"name": "Cereales desayuno (sin azúcar)", "carbsPer100": 66.7},
+    {"name": "Galletas María", "carbsPer100": 66.7},
+    {"name": "Quinoa (cruda)", "carbsPer100": 76.9}
+  ],
+  "03_Tubérculos_y_Legumbres": [
+    {"name": "Patata (cruda)", "carbsPer100": 15.4},
+    {"name": "Boniato (crudo)", "carbsPer100": 20.0},
+    {"name": "Yuca", "carbsPer100": 40.0},
+    {"name": "Garbanzos / Lentejas (secos)", "carbsPer100": 50.0},
+    {"name": "Judías blancas (secas)", "carbsPer100": 40.0},
+    {"name": "Garbanzos / Lentejas (cocidos/bote)", "carbsPer100": 18.2},
+    {"name": "Guisantes frescos", "carbsPer100": 10.0},
+    {"name": "Habas frescas", "carbsPer100": 10.0}
+  ],
+  "04_Frutas": [
+    {"name": "Manzana / Pera", "carbsPer100": 10.0},
+    {"name": "Plátano", "carbsPer100": 16.7},
+    {"name": "Naranja / Mandarina / Kiwi", "carbsPer100": 10.0},
+    {"name": "Uva", "carbsPer100": 20.0},
+    {"name": "Cerezas / Ciruelas", "carbsPer100": 10.0},
+    {"name": "Fresas / Melón / Sandía", "carbsPer100": 5.0},
+    {"name": "Piña / Melocotón", "carbsPer100": 10.0},
+    {"name": "Higos", "carbsPer100": 20.0},
+    {"name": "Fruta desecada (pasas, ciruelas)", "carbsPer100": 66.7}
+  ],
+  "05_Verduras_y_Hortalizas": [
+    {"name": "Acelgas / Espinacas / Lechuga", "carbsPer100": 2.0},
+    {"name": "Tomate", "carbsPer100": 3.3},
+    {"name": "Cebolla / Zanahoria", "carbsPer100": 6.7},
+    {"name": "Pimiento", "carbsPer100": 3.3},
+    {"name": "Berenjena / Calabacín", "carbsPer100": 3.3},
+    {"name": "Judía verde", "carbsPer100": 4.0},
+    {"name": "Calabaza", "carbsPer100": 5.0},
+    {"name": "Espárragos / Champiñones", "carbsPer100": 3.0}
+  ],
+  "06_Frutos_Secos": [
+    {"name": "Almendras / Avellanas / Nueces", "carbsPer100": 6.7},
+    {"name": "Castañas", "carbsPer100": 33.3},
+    {"name": "Cahuetes / Pistachos", "carbsPer100": 10.0},
+    {"name": "Pipas de girasol", "carbsPer100": 12.5}
+  ],
+  "07_Varios": [
+    {"name": "Azúcar blanco", "carbsPer100": 100.0},
+    {"name": "Mermelada", "carbsPer100": 50.0},
+    {"name": "Cacao en polvo", "carbsPer100": 66.7},
+    {"name": "Miel", "carbsPer100": 76.9},
+    {"name": "Pizza comercial", "carbsPer100": 25.0},
+    {"name": "Croquetas", "carbsPer100": 16.7}
+  ]
+}
+
+Feature: Add an autocomplete search bar in the "Prep Stage" so users can pick these ingredients and auto-fill the "Carbs per 100g" field.
+
+3. App Stages & Logic:
+
+Step 1 (Prep): Add ingredients with Name, Raw Weight (g), and Carbs per 100g. Show a "Total Raw Carbs" summary card.
+
+Step 2 (Cooking): Input "Final Cooked Weight" (excluding pot). Calculate "Carb Density" (Total Carbs / Final Weight).
+
+Step 3 (Serve): Dual selector (Toggle) between:
+
+Raciones Mode: Input "How many raciones do you want?". Result: "Serve [X] grams on your plate."
+
+Grams Mode: Input "Grams on your plate?". Result: "This portion contains [X] Raciones."
+
+Persistence: Use LocalStorage to save the current recipe progress.
+
+BD:
+[
+  {
+    "seccion": "01 Lácteos",
+    "alimentos": [
+      {
+        "alimento": "Cuajada",
+        "gramos_1_racion_hc": 175,
+        "medida_habitual": "Unidad (125ml)",
+        "raciones_hc_medida": 0.6,
+        "ig": 35
+      },
+      {
+        "alimento": "Flan",
+        "gramos_1_racion_hc": 45,
+        "medida_habitual": "Unidad (110g)",
+        "raciones_hc_medida": 2.5,
+        "ig": null
+      },
+      {
+        "alimento": "Helado de crema",
+        "gramos_1_racion_hc": 50,
+        "detalles_medida": [
+          { "medida": "Bola mediana (100g)", "raciones_hc": 2.0 },
+          { "medida": "Tarrina individual (150ml)", "raciones_hc": 3.0 }
+        ],
+        "ig": 60
+      },
+      {
+        "alimento": "Helado de hielo",
+        "gramos_1_racion_hc": 50,
+        "medida_habitual": "Unidad (100ml)",
+        "raciones_hc_medida": 2.0,
+        "ig": 65
+      },
+      {
+        "alimento": "Helado \"sin azúcares añadidos\"",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "Unidad (100ml)",
+        "raciones_hc_medida": 1.0,
+        "ig": 35
+      },
+      {
+        "alimento": "Leche desnatada",
+        "gramos_1_racion_hc": 200,
+        "medida_habitual": "Vaso o taza (200ml)",
+        "raciones_hc_medida": 1.0,
+        "ig": 32
+      },
+      {
+        "alimento": "Leche semidesnatada",
+        "gramos_1_racion_hc": 200,
+        "medida_habitual": "Vaso o taza (200ml)",
+        "raciones_hc_medida": 1.0,
+        "ig": 30
+      },
+      {
+        "alimento": "Leche entera",
+        "gramos_1_racion_hc": 200,
+        "medida_habitual": "Vaso o taza (200ml)",
+        "raciones_hc_medida": 1.0,
+        "ig": 27
+      },
+      {
+        "alimento": "Leche condensada",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": "Cucharada sopera (20g)",
+        "raciones_hc_medida": 1.0,
+        "ig": 61
+      },
+      {
+        "alimento": "Leche en polvo",
+        "gramos_1_racion_hc": 25,
+        "medida_habitual": "Cucharada sopera colmada (25g)",
+        "raciones_hc_medida": 1.0,
+        "ig": 30
+      },
+      {
+        "alimento": "Kéfir",
+        "gramos_1_racion_hc": 200,
+        "medida_habitual": "Unidad (125ml)",
+        "raciones_hc_medida": 0.5,
+        "ig": 35
+      },
+      {
+        "alimento": "Nata líquida",
+        "gramos_1_racion_hc": 300,
+        "medida_habitual": "Botellín o brick (200ml)",
+        "raciones_hc_medida": 0.7,
+        "ig": null
+      },
+      {
+        "alimento": "Natillas",
+        "gramos_1_racion_hc": 50,
+        "medida_habitual": "Unidad (125ml)",
+        "raciones_hc_medida": 2.5,
+        "ig": null
+      },
+      {
+        "alimento": "Queso tipo Petit Suisse",
+        "gramos_1_racion_hc": 75,
+        "medida_habitual": "Unidad (50g)",
+        "raciones_hc_medida": 0.6,
+        "ig": 40
+      },
+      {
+        "alimento": "Queso fresco",
+        "gramos_1_racion_hc": 250,
+        "medida_habitual": "Tarrina individual (70g)",
+        "raciones_hc_medida": 0.3,
+        "ig": 35
+      },
+      {
+        "alimento": "Quesos de pasta, semis o curados",
+        "gramos_1_racion_hc": "No valorable",
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Yogur natural, entero o desnatado",
+        "gramos_1_racion_hc": 200,
+        "medida_habitual": "Unidad (125ml)",
+        "raciones_hc_medida": 0.5,
+        "ig": 35
+      },
+      {
+        "alimento": "Yogur desnatado, de sabores o fruta",
+        "gramos_1_racion_hc": 150,
+        "medida_habitual": "Unidad (125ml)",
+        "raciones_hc_medida": 0.8,
+        "ig": 35
+      },
+      {
+        "alimento": "Yogur entero, de sabores o fruta",
+        "gramos_1_racion_hc": 70,
+        "medida_habitual": "Unidad (125ml)",
+        "raciones_hc_medida": 1.5,
+        "ig": 35
+      },
+      {
+        "alimento": "Yogur tipo Actimel",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "Unidad (100ml)",
+        "raciones_hc_medida": 1.0,
+        "ig": 35
+      },
+      {
+        "alimento": "Yogur tipo Actimel 0%",
+        "gramos_1_racion_hc": 200,
+        "medida_habitual": "Unidad (100ml)",
+        "raciones_hc_medida": 0.5,
+        "ig": 35
+      },
+      {
+        "alimento": "Yogur líquido",
+        "gramos_1_racion_hc": 70,
+        "medida_habitual": "Unidad (200ml)",
+        "raciones_hc_medida": 3.0,
+        "ig": 40
+      }
+    ]
+  },
+  {
+    "seccion": "02 Cereales y derivados, harinas, legumbres y tubérculos",
+    "alimentos": [
+      {
+        "alimento": "Altramuz",
+        "gramos_1_racion_hc": 50,
+        "medida_habitual": "Tapa (30g)",
+        "raciones_hc_medida": 0.6,
+        "ig": 15
+      },
+      {
+        "alimento": "Arroz blanco, crudo",
+        "gramos_1_racion_hc": 13,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Arroz blanco, hervido",
+        "gramos_1_racion_hc": 38,
+        "detalles_medida": [
+          { "medida": "Plato grande (240g)", "raciones_hc": 6.0 },
+          { "medida": "Plato mediano (160g)", "raciones_hc": 4.0 },
+          { "medida": "Guarnición (80g)", "raciones_hc": 2.0 }
+        ],
+        "ig": 70
+      },
+      {
+        "alimento": "Arroz hinchado para el desayuno",
+        "gramos_1_racion_hc": 12,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 85
+      },
+      {
+        "alimento": "Arroz integral, crudo",
+        "gramos_1_racion_hc": 13,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Arroz integral, hervido",
+        "gramos_1_racion_hc": 40,
+        "detalles_medida": [
+          { "medida": "Plato grande (240g)", "raciones_hc": 6.0 },
+          { "medida": "Plato mediano (160g)", "raciones_hc": 4.0 },
+          { "medida": "Guarnición (80g)", "raciones_hc": 2.0 }
+        ],
+        "ig": 50
+      },
+      {
+        "alimento": "Arroz salvaje, crudo",
+        "gramos_1_racion_hc": 13,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Arroz salvaje, hervido",
+        "gramos_1_racion_hc": 34,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 35
+      },
+      {
+        "alimento": "Avena, crudo",
+        "gramos_1_racion_hc": 15,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Avena, hervido",
+        "gramos_1_racion_hc": 34,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 40
+      },
+      {
+        "alimento": "Boniato",
+        "gramos_1_racion_hc": 50,
+        "detalles_medida": [
+          { "medida": "Tamaño pequeño (80g)", "raciones_hc": 1.6 },
+          { "medida": "Tamaño mediano (160g)", "raciones_hc": 3.2 },
+          { "medida": "Tamaño grande (320g)", "raciones_hc": 6.4 }
+        ],
+        "ig": 50
+      },
+      {
+        "alimento": "Cebada, crudo",
+        "gramos_1_racion_hc": 14,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Cebada, hervido",
+        "gramos_1_racion_hc": 42,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 45
+      },
+      {
+        "alimento": "Centeno, crudo",
+        "gramos_1_racion_hc": 15,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Centeno, hervido",
+        "gramos_1_racion_hc": 38,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 45
+      },
+      {
+        "alimento": "Cereales desayuno (trigo)",
+        "gramos_1_racion_hc": 15,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 77
+      },
+      {
+        "alimento": "Cereales desayuno, ricos en fibra (>10%)",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 50
+      },
+      {
+        "alimento": "Cereales tipo muesli",
+        "gramos_1_racion_hc": 15,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 65
+      },
+      {
+        "alimento": "Cuscús, crudo",
+        "gramos_1_racion_hc": 15,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Cuscús, cocido",
+        "gramos_1_racion_hc": 45,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 65
+      },
+      {
+        "alimento": "Fideos de arroz, hervido",
+        "gramos_1_racion_hc": 50,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 50
+      },
+      {
+        "alimento": "Fideos de soja, hervido",
+        "gramos_1_racion_hc": 40,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Galleta tipo Digestiva",
+        "gramos_1_racion_hc": 16,
+        "medida_habitual": "Unidad (11g)",
+        "raciones_hc_medida": 0.7,
+        "ig": 65
+      },
+      {
+        "alimento": "Galleta tipo María",
+        "gramos_1_racion_hc": 13,
+        "detalles_medida": [
+          { "medida": "Unidad (5g)", "raciones_hc": 0.4 },
+          { "medida": "Unidad (7g)", "raciones_hc": 0.5 }
+        ],
+        "ig": 70
+      },
+      {
+        "alimento": "Galleta tipo Príncipe",
+        "gramos_1_racion_hc": 14,
+        "medida_habitual": "Unidad (15g)",
+        "raciones_hc_medida": 1.0,
+        "ig": 70
+      },
+      {
+        "alimento": "Galleta sin Azúcar",
+        "gramos_1_racion_hc": 18,
+        "medida_habitual": "Unidad (7g)",
+        "raciones_hc_medida": 0.3,
+        "ig": 50
+      },
+      {
+        "alimento": "Garbanzo, crudo",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Garbanzo, en conserva",
+        "gramos_1_racion_hc": 70,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 35
+      },
+      {
+        "alimento": "Garbanzo, hervido",
+        "gramos_1_racion_hc": 55,
+        "detalles_medida": [
+          { "medida": "Plato grande (330g)", "raciones_hc": 6.0 },
+          { "medida": "Plato mediano (220g)", "raciones_hc": 4.0 },
+          { "medida": "Guarnición (110g)", "raciones_hc": 2.0 }
+        ],
+        "ig": 35
+      },
+      {
+        "alimento": "Guisantes congelados, frescos, de lata",
+        "gramos_1_racion_hc": 100,
+        "detalles_medida": [
+          { "medida": "Plato grande (600g)", "raciones_hc": 6.0 },
+          { "medida": "Plato mediano (400g)", "raciones_hc": 4.0 },
+          { "medida": "Guarnición (200g)", "raciones_hc": 2.0 }
+        ],
+        "ig": 35
+      },
+      {
+        "alimento": "Gofio",
+        "gramos_1_racion_hc": 12,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Harina de avena",
+        "gramos_1_racion_hc": 18,
+        "medida_habitual": "Cucharada sopera rasa (14g)",
+        "raciones_hc_medida": 0.8,
+        "ig": null
+      },
+      {
+        "alimento": "Harina de cebada o centeno",
+        "gramos_1_racion_hc": 17,
+        "medida_habitual": "Cucharada sopera rasa (14g)",
+        "raciones_hc_medida": 0.8,
+        "ig": 45
+      },
+      {
+        "alimento": "Harina de maíz",
+        "gramos_1_racion_hc": 15,
+        "medida_habitual": "Cucharada sopera rasa (14g)",
+        "raciones_hc_medida": 1.0,
+        "ig": 70
+      },
+      {
+        "alimento": "Harina de soja",
+        "gramos_1_racion_hc": 70,
+        "medida_habitual": "Cucharada sopera rasa (14g)",
+        "raciones_hc_medida": 0.2,
+        "ig": 25
+      },
+      {
+        "alimento": "Harina de trigo",
+        "gramos_1_racion_hc": 15,
+        "medida_habitual": "Cucharada sopera rasa (14g)",
+        "raciones_hc_medida": 1.0,
+        "ig": 70
+      },
+      {
+        "alimento": "Hojaldre crudo",
+        "gramos_1_racion_hc": 30,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Hojaldre horneado",
+        "gramos_1_racion_hc": 24,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 56
+      },
+      {
+        "alimento": "Hummus",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Judías blancas, crudo",
+        "gramos_1_racion_hc": 25,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Judías blancas, en conserva",
+        "gramos_1_racion_hc": 70,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 35
+      },
+      {
+        "alimento": "Judías blancas, hervido",
+        "gramos_1_racion_hc": 55,
+        "detalles_medida": [
+          { "medida": "Plato grande (300g)", "raciones_hc": 6.0 },
+          { "medida": "Plato mediano (200g)", "raciones_hc": 4.0 },
+          { "medida": "Guarnición (100g)", "raciones_hc": 2.0 }
+        ],
+        "ig": 35
+      },
+      {
+        "alimento": "Legumbre, en conserva",
+        "gramos_1_racion_hc": 70,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Lentejas, crudo",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Lentejas, en conserva",
+        "gramos_1_racion_hc": 70,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 35
+      },
+      {
+        "alimento": "Lentejas, hervido",
+        "gramos_1_racion_hc": 50,
+        "detalles_medida": [
+          { "medida": "Plato grande (300g)", "raciones_hc": 6.0 },
+          { "medida": "Plato mediano (200g)", "raciones_hc": 4.0 },
+          { "medida": "Guarnición (100g)", "raciones_hc": 2.0 }
+        ],
+        "ig": 35
+      },
+      {
+        "alimento": "Maíz en lata",
+        "gramos_1_racion_hc": 50,
+        "medida_habitual": "Lata pequeña (150g)",
+        "raciones_hc_medida": 3.0,
+        "ig": 65
+      },
+      {
+        "alimento": "Maíz en lata sin azúcar añadido",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "Lata pequeña (150g)",
+        "raciones_hc_medida": 1.5,
+        "ig": null
+      },
+      {
+        "alimento": "Maíz tostado (quicos)",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": "Bolsa pequeña (40g)",
+        "raciones_hc_medida": 2.0,
+        "ig": null
+      },
+      {
+        "alimento": "Mijo, crudo",
+        "gramos_1_racion_hc": 15,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Mijo, cocido",
+        "gramos_1_racion_hc": 53,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 70
+      },
+      {
+        "alimento": "Pan blanco (de trigo)",
+        "gramos_1_racion_hc": 20,
+        "detalles_medida": [
+          { "medida": "Barra de 1/4, unos 3 cm (20g)", "raciones_hc": 1.0 },
+          { "medida": "Barra de 1/4 entera (180g)", "raciones_hc": 9.0 },
+          { "medida": "Panecillo restaurante (60g)", "raciones_hc": 3.0 }
+        ],
+        "ig": 70
+      },
+      {
+        "alimento": "Pan de centeno",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 65
+      },
+      {
+        "alimento": "Pan de hamburguesa o Frankfurt",
+        "gramos_1_racion_hc": 18,
+        "detalles_medida": [
+          { "medida": "Unidad (80g)", "raciones_hc": 4.5 },
+          { "medida": "Unidad pequeña (55g)", "raciones_hc": 3.0 }
+        ],
+        "ig": 85
+      },
+      {
+        "alimento": "Pan de molde",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": "Rebanada (25g)",
+        "raciones_hc_medida": 1.2,
+        "ig": 85
+      },
+      {
+        "alimento": "Pan integral",
+        "gramos_1_racion_hc": 23,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 40
+      },
+      {
+        "alimento": "Pan rallado",
+        "gramos_1_racion_hc": 15,
+        "medida_habitual": "Cucharada sopera colmada (23g)",
+        "raciones_hc_medida": 1.5,
+        "ig": 70
+      },
+      {
+        "alimento": "Pan tostado o biscote",
+        "gramos_1_racion_hc": 15,
+        "detalles_medida": [
+          { "medida": "Unidad (10g)", "raciones_hc": 0.6 },
+          { "medida": "Unidad mini (3,5g)", "raciones_hc": 0.25 },
+          { "medida": "Tostada canapé (2g)", "raciones_hc": 0.15 },
+          { "medida": "Krispoll (12,5g)", "raciones_hc": 0.8 },
+          { "medida": "Palitos (3 unidades, 15g)", "raciones_hc": 1.0 }
+        ],
+        "ig": 70
+      },
+      {
+        "alimento": "Pasta alimenticia, crudo",
+        "gramos_1_racion_hc": 14,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Pasta alimenticia, hervido",
+        "gramos_1_racion_hc": 45,
+        "detalles_medida": [
+          { "medida": "Plato grande (270g)", "raciones_hc": 6.0 },
+          { "medida": "Plato mediano (180g)", "raciones_hc": 4.0 },
+          { "medida": "Guarnición (90g)", "raciones_hc": 2.0 }
+        ],
+        "ig": 50
+      },
+      {
+        "alimento": "Pasta alimenticia integral, crudo",
+        "gramos_1_racion_hc": 15,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Pasta alimenticia integral, hervido",
+        "gramos_1_racion_hc": 45,
+        "detalles_medida": [
+          { "medida": "Plato grande (270g)", "raciones_hc": 6.0 },
+          { "medida": "Plato mediano (180g)", "raciones_hc": 4.0 },
+          { "medida": "Guarnición (90g)", "raciones_hc": 2.0 }
+        ],
+        "ig": 45
+      },
+      {
+        "alimento": "Pasta al huevo, crudo",
+        "gramos_1_racion_hc": 16,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Pasta fresca rellena",
+        "gramos_1_racion_hc": 30,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Pasta sin gluten",
+        "gramos_1_racion_hc": 13,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 73
+      },
+      {
+        "alimento": "Patata, crudo",
+        "gramos_1_racion_hc": 65,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Patata hervida",
+        "gramos_1_racion_hc": 65,
+        "detalles_medida": [
+          { "medida": "Plato grande (325g)", "raciones_hc": 5.0 },
+          { "medida": "Plato mediano (200g)", "raciones_hc": 3.0 },
+          { "medida": "Guarnición (100g)", "raciones_hc": 1.5 }
+        ],
+        "ig": 65
+      },
+      {
+        "alimento": "Patata, al horno o asada",
+        "gramos_1_racion_hc": 35,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 82
+      },
+      {
+        "alimento": "Patatas fritas",
+        "gramos_1_racion_hc": 30,
+        "detalles_medida": [
+          { "medida": "Guarnición (60g)", "raciones_hc": 2.0 },
+          { "medida": "Porción hamburguesería (120g)", "raciones_hc": 4.0 }
+        ],
+        "ig": 70
+      },
+      {
+        "alimento": "Patatas chips",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": "Bolsa pequeña (30g)",
+        "raciones_hc_medida": 1.5,
+        "ig": 95
+      },
+      {
+        "alimento": "Puré de patatas, en copos",
+        "gramos_1_racion_hc": 15,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 90
+      },
+      {
+        "alimento": "Puré de patatas, elaborado con leche",
+        "gramos_1_racion_hc": 80,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 90
+      },
+      {
+        "alimento": "Quinoa, crudo",
+        "gramos_1_racion_hc": 19,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Quinoa, hervido",
+        "gramos_1_racion_hc": 48,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 35
+      },
+      {
+        "alimento": "Sémola de trigo, crudo",
+        "gramos_1_racion_hc": 14,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Sémola de trigo, hervido",
+        "gramos_1_racion_hc": 90,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 67
+      },
+      {
+        "alimento": "Soja seca, crudo",
+        "gramos_1_racion_hc": 30,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Soja seca, hervido",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 15
+      },
+      {
+        "alimento": "Sushi",
+        "gramos_1_racion_hc": 45,
+        "detalles_medida": [
+          { "medida": "Pieza pequeña (20g)", "raciones_hc": 0.5 },
+          { "medida": "Pieza grande (40g)", "raciones_hc": 0.9 }
+        ],
+        "ig": 42
+      },
+      {
+        "alimento": "Tapioca, crudo",
+        "gramos_1_racion_hc": 12,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Tapioca, hervido",
+        "gramos_1_racion_hc": 33,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 84
+      },
+      {
+        "alimento": "Trigo sarraceno, crudo",
+        "gramos_1_racion_hc": 14,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Trigo sarraceno, hervido",
+        "gramos_1_racion_hc": 42,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 40
+      },
+      {
+        "alimento": "Trigo tierno, crudo",
+        "gramos_1_racion_hc": 16,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Trigo tierno, hervido",
+        "gramos_1_racion_hc": 39,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 54
+      },
+      {
+        "alimento": "Yuca, crudo",
+        "gramos_1_racion_hc": 25,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Yuca, cocido",
+        "gramos_1_racion_hc": 33,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 55
+      }
+    ]
+  },
+  {
+    "seccion": "07 Otros",
+    "alimentos": [
+      {
+        "alimento": "Crema de cacahuete",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "Cucharada sopera colmada (20g)",
+        "raciones_hc_medida": 0.2,
+        "ig": 40
+      },
+      {
+        "alimento": "Crema pastelera",
+        "gramos_1_racion_hc": 40,
+        "medida_habitual": "Cucharada sopera colmada (20g)",
+        "raciones_hc_medida": 0.5,
+        "ig": null
+      },
+      {
+        "alimento": "Crepe",
+        "gramos_1_racion_hc": 40,
+        "medida_habitual": "Unidad (75g)",
+        "raciones_hc_medida": 2.0,
+        "ig": null
+      },
+      {
+        "alimento": "Croquetas",
+        "gramos_1_racion_hc": 50,
+        "medida_habitual": "3 unidades (90g)",
+        "raciones_hc_medida": 1.8,
+        "ig": null
+      },
+      {
+        "alimento": "Cruasán",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": "Unidad (60g)",
+        "raciones_hc_medida": 3.0,
+        "ig": 70
+      },
+      {
+        "alimento": "Döner kebab",
+        "gramos_1_racion_hc": 60,
+        "medida_habitual": "Unidad",
+        "raciones_hc_medida": 6.0,
+        "ig": null
+      },
+      {
+        "alimento": "Donut",
+        "gramos_1_racion_hc": 23,
+        "medida_habitual": "Unidad (58g)",
+        "raciones_hc_medida": 2.5,
+        "ig": 70
+      },
+      {
+        "alimento": "Durum",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "Unidad",
+        "raciones_hc_medida": 4.0,
+        "ig": null
+      },
+      {
+        "alimento": "Empanadilla de carne",
+        "gramos_1_racion_hc": 50,
+        "medida_habitual": "2 unidades (80g)",
+        "raciones_hc_medida": 1.6,
+        "ig": null
+      },
+      {
+        "alimento": "Ensaimada",
+        "gramos_1_racion_hc": 23,
+        "medida_habitual": "Unidad (70g)",
+        "raciones_hc_medida": 3.0,
+        "ig": 70
+      },
+      {
+        "alimento": "Ensaladilla rusa",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Fajita, tortilla mejicana",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": "Unidad comercial (40g)",
+        "raciones_hc_medida": 2.0,
+        "ig": null
+      },
+      {
+        "alimento": "Fructosa (edulcorante)",
+        "gramos_1_racion_hc": 10,
+        "medida_habitual": "Cucharada sopera (20g)",
+        "raciones_hc_medida": 2.0,
+        "ig": 20
+      },
+      {
+        "alimento": "Gazpacho comercial",
+        "gramos_1_racion_hc": 150,
+        "medida_habitual": "Vaso (200cc)",
+        "raciones_hc_medida": 1.3,
+        "ig": null
+      },
+      {
+        "alimento": "Gelatina comercial",
+        "gramos_1_racion_hc": 62,
+        "medida_habitual": "Unidad (125cc)",
+        "raciones_hc_medida": 2.0,
+        "ig": null
+      },
+      {
+        "alimento": "Gelatina 0%",
+        "gramos_1_racion_hc": 500,
+        "medida_habitual": "Unidad (125cc)",
+        "raciones_hc_medida": 0.2,
+        "ig": null
+      },
+      {
+        "alimento": "Glucosa (líquida o en pastillas)",
+        "gramos_1_racion_hc": 10,
+        "detalles_medida": [
+          { "medida": "Pastilla pequeña (2,5g)", "raciones_hc": 0.25 },
+          { "medida": "Pastilla normal (5g)", "raciones_hc": 0.5 },
+          { "medida": "Gel deportista (40g)", "raciones_hc": 2.5 },
+          { "medida": "Gel hipoglucemia", "raciones_hc": 1.5 }
+        ],
+        "ig": 100
+      },
+      {
+        "alimento": "Golosinas",
+        "gramos_1_racion_hc": 18,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 70
+      },
+      {
+        "alimento": "Ketchup",
+        "gramos_1_racion_hc": 50,
+        "medida_habitual": "Sobre (9g)",
+        "raciones_hc_medida": 0.2,
+        "ig": 55
+      },
+      {
+        "alimento": "Lasaña",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "Plato restaurante (260g)",
+        "raciones_hc_medida": 2.7,
+        "ig": 53
+      },
+      {
+        "alimento": "Levadura",
+        "gramos_1_racion_hc": 130,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Magdalena",
+        "gramos_1_racion_hc": 25,
+        "medida_habitual": "Unidad (50g)",
+        "raciones_hc_medida": 2.0,
+        "ig": 70
+      },
+      {
+        "alimento": "Mazapán",
+        "gramos_1_racion_hc": 25,
+        "medida_habitual": "Unidad (35g)",
+        "raciones_hc_medida": 1.4,
+        "ig": null
+      },
+      {
+        "alimento": "Merengue",
+        "gramos_1_racion_hc": 11,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Mermelada",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": "Cucharada sopera (25g)",
+        "raciones_hc_medida": 1.25,
+        "ig": 65
+      },
+      {
+        "alimento": "Mermelada light",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "Cucharada sopera (25g)",
+        "raciones_hc_medida": 0.25,
+        "ig": 30
+      },
+      {
+        "alimento": "Miel",
+        "gramos_1_racion_hc": 13,
+        "medida_habitual": "Cucharada sopera (18g)",
+        "raciones_hc_medida": 1.5,
+        "ig": 85
+      },
+      {
+        "alimento": "Mostaza",
+        "gramos_1_racion_hc": "No valorable",
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Palomitas",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 85
+      },
+      {
+        "alimento": "Pastel de chocolate",
+        "gramos_1_racion_hc": 25,
+        "medida_habitual": "Porción (100g)",
+        "raciones_hc_medida": 4.0,
+        "ig": null
+      },
+      {
+        "alimento": "Pastel de crema",
+        "gramos_1_racion_hc": 35,
+        "medida_habitual": "Porción (100g)",
+        "raciones_hc_medida": 2.8,
+        "ig": null
+      },
+      {
+        "alimento": "Pastel o tarta de manzana",
+        "gramos_1_racion_hc": 25,
+        "medida_habitual": "Porción (100g)",
+        "raciones_hc_medida": 4.0,
+        "ig": null
+      },
+      {
+        "alimento": "Pepinillos en vinagre",
+        "gramos_1_racion_hc": "No valorable",
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Pizza",
+        "gramos_1_racion_hc": 40,
+        "detalles_medida": [
+          { "medida": "Triángulo (100g o 1/4 parte)", "raciones_hc": 2.5 },
+          { "medida": "Media pizza (200g)", "raciones_hc": 5.0 },
+          { "medida": "Pizza individual (400g)", "raciones_hc": 10.0 }
+        ],
+        "ig": 45
+      },
+      {
+        "alimento": "Regaliz",
+        "gramos_1_racion_hc": 15,
+        "medida_habitual": "Unidad (8g)",
+        "raciones_hc_medida": 0.5,
+        "ig": null
+      },
+      {
+        "alimento": "Rollito de primavera",
+        "gramos_1_racion_hc": 50,
+        "medida_habitual": "2 unidades (100g)",
+        "raciones_hc_medida": 2.0,
+        "ig": null
+      },
+      {
+        "alimento": "Salsa barbacoa",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "3 cucharadas soperas (50g)",
+        "raciones_hc_medida": 0.5,
+        "ig": null
+      },
+      {
+        "alimento": "Salsa bechamel",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "3 cucharadas soperas (50g)",
+        "raciones_hc_medida": 0.5,
+        "ig": null
+      },
+      {
+        "alimento": "Salsa boloñesa",
+        "gramos_1_racion_hc": 150,
+        "medida_habitual": "5 cucharadas soperas (75g)",
+        "raciones_hc_medida": 0.5,
+        "ig": null
+      },
+      {
+        "alimento": "Salsa carbonara",
+        "gramos_1_racion_hc": "No valorable",
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Salsa de tomate comercial",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "3 cucharadas soperas (50g)",
+        "raciones_hc_medida": 0.5,
+        "ig": null
+      },
+      {
+        "alimento": "Salsa de soja",
+        "gramos_1_racion_hc": 200,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Seitán",
+        "gramos_1_racion_hc": 300,
+        "medida_habitual": "Porción (100g)",
+        "raciones_hc_medida": 0.3,
+        "ig": null
+      },
+      {
+        "alimento": "Sucedáneo de café, tipo EKO",
+        "gramos_1_racion_hc": "No valorable",
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Surimi (palitos de cangrejo)",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "Una barrita (20g)",
+        "raciones_hc_medida": 0.2,
+        "ig": null
+      },
+  {
+    "alimento": "Tofu",
+    "gramos_1_racion_hc": 300,
+    "medida_habitual": "Porción (100g)",
+    "raciones_hc_medida": 0.3,
+    "ig": null
+  },
+  {
+    "alimento": "Tortilla de patatas",
+    "gramos_1_racion_hc": 120,
+    "medida_habitual": "Tapa (120g)",
+    "raciones_hc_medida": 1.0,
+    "ig": null
+  },
+  {
+    "alimento": "Turrón tipo Alicante",
+    "gramos_1_racion_hc": 25,
+    "medida_habitual": "1/6 de tableta (50g)",
+    "raciones_hc_medida": 2.0,
+    "ig": null
+  },
+  {
+    "alimento": "Turrón tipo chocolate",
+    "gramos_1_racion_hc": 20,
+    "medida_habitual": "1/6 de tableta (50g)",
+    "raciones_hc_medida": 2.5,
+    "ig": null
+  },
+  {
+    "alimento": "Turrón tipo Jijona",
+    "gramos_1_racion_hc": 25,
+    "medida_habitual": "1/6 de tableta (50g)",
+    "raciones_hc_medida": 2.0,
+    "ig": null
+  },
+  {
+    "alimento": "Vinagre",
+    "gramos_1_racion_hc": "No valorable",
+    "medida_habitual": null,
+    "raciones_hc_medida": null,
+    "ig": null
+  },
+  {
+    "alimento": "Vinagre tipo Módena (caramelizado)",
+    "gramos_1_racion_hc": 15,
+    "medida_habitual": "Cucharada sopera (15g)",
+    "raciones_hc_medida": 1.0,
+    "ig": null
+  }
+[
+  {
+    "seccion": "06 Bebidas",
+    "alimentos": [
+      {
+        "alimento": "Bebida de almendra",
+        "gramos_1_racion_hc": 200,
+        "medida_habitual": "Vaso o brick de 200cc",
+        "raciones_hc_medida": 1.0,
+        "ig": 35
+      },
+      {
+        "alimento": "Bebida de arroz",
+        "gramos_1_racion_hc": 200,
+        "medida_habitual": "Vaso o brick de 200cc",
+        "raciones_hc_medida": 1.0,
+        "ig": 85
+      },
+      {
+        "alimento": "Bebida de avena",
+        "gramos_1_racion_hc": 200,
+        "medida_habitual": "Vaso o brick de 200cc",
+        "raciones_hc_medida": 1.0,
+        "ig": 35
+      },
+      {
+        "alimento": "Bebida de cacao",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "Vaso o brick de 200cc",
+        "raciones_hc_medida": 2.0,
+        "ig": 34
+      },
+      {
+        "alimento": "Bebida de soja",
+        "gramos_1_racion_hc": 250,
+        "medida_habitual": "Vaso o brick de 200cc",
+        "raciones_hc_medida": 0.8,
+        "ig": 30
+      },
+      {
+        "alimento": "Bebida isotónica",
+        "gramos_1_racion_hc": 130,
+        "detalles_medida": [
+          {"medida": "Lata de 330cc", "raciones_hc": 2.5},
+          {"medida": "Botella de 500cc", "raciones_hc": 3.8}
+        ],
+        "ig": 78
+      },
+      {
+        "alimento": "Bebida refrescante tipo cola (10% de hidratos de carbono)",
+        "gramos_1_racion_hc": 100,
+        "detalles_medida": [
+          {"medida": "Vaso de 200cc", "raciones_hc": 2.0},
+          {"medida": "Lata de 330cc", "raciones_hc": 3.3}
+        ],
+        "ig": 70
+      },
+      {
+        "alimento": "Bebida refrescante tipo cola (4,5% de hidratos de carbono)",
+        "gramos_1_racion_hc": 200,
+        "detalles_medida": [
+          {"medida": "Vaso de 200cc", "raciones_hc": 1.0},
+          {"medida": "Lata de 330cc", "raciones_hc": 1.6}
+        ],
+        "ig": 70
+      },
+      {
+        "alimento": "Bebida refrescante tipo cola o sabores light o sin azúcar",
+        "gramos_1_racion_hc": "No valorable",
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Bitter",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "Vaso o botellín de 200cc",
+        "raciones_hc_medida": 2.0,
+        "ig": 70
+      },
+      {
+        "alimento": "Caldo de pollo o carne",
+        "gramos_1_racion_hc": "No valorable",
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Cava brut",
+        "gramos_1_racion_hc": "No valorable",
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Cava seco o semiseco",
+        "gramos_1_racion_hc": 250,
+        "medida_habitual": "Copa (100cc)",
+        "raciones_hc_medida": 0.4,
+        "ig": null
+      },
+      {
+        "alimento": "Cerveza",
+        "gramos_1_racion_hc": 250,
+        "detalles_medida": [
+          {"medida": "Vaso o caña (200cc)", "raciones_hc": 0.8},
+          {"medida": "Tercio o mediana (330cc)", "raciones_hc": 1.3},
+          {"medida": "Jarra (500cc)", "raciones_hc": 2.0}
+        ],
+        "ig": 110
+      },
+      {
+        "alimento": "Cerveza light",
+        "gramos_1_racion_hc": 300,
+        "detalles_medida": [
+          {"medida": "Vaso o caña (200cc)", "raciones_hc": 0.7},
+          {"medida": "Tercio o mediana (330cc)", "raciones_hc": 1.1},
+          {"medida": "Jarra (500cc)", "raciones_hc": 1.7}
+        ],
+        "ig": null
+      },
+      {
+        "alimento": "Cerveza sin alcohol",
+        "gramos_1_racion_hc": 250,
+        "detalles_medida": [
+          {"medida": "Vaso o caña (200cc)", "raciones_hc": 0.8},
+          {"medida": "Tercio o mediana (330cc)", "raciones_hc": 1.3},
+          {"medida": "Jarra (500cc)", "raciones_hc": 2.0}
+        ],
+        "ig": 110
+      },
+      {
+        "alimento": "Destilados (ginebra, whisky, ron, vodka)",
+        "gramos_1_racion_hc": "No valorable",
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Gaseosa",
+        "gramos_1_racion_hc": "No valorable",
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Horchata",
+        "gramos_1_racion_hc": 75,
+        "medida_habitual": "Un vaso (200cc)",
+        "raciones_hc_medida": 2.6,
+        "ig": null
+      },
+      {
+        "alimento": "Horchata light",
+        "gramos_1_racion_hc": 300,
+        "medida_habitual": "Un vaso (200cc)",
+        "raciones_hc_medida": 0.7,
+        "ig": null
+      },
+      {
+        "alimento": "Licor de melocotón o manzana",
+        "gramos_1_racion_hc": 30,
+        "medida_habitual": "Un chupito (30cc)",
+        "raciones_hc_medida": 1.0,
+        "ig": null
+      },
+      {
+        "alimento": "Mosto",
+        "gramos_1_racion_hc": 70,
+        "medida_habitual": "Una copa (100cc)",
+        "raciones_hc_medida": 1.4,
+        "ig": null
+      },
+      {
+        "alimento": "Sangría",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "Un vaso (200cc)",
+        "raciones_hc_medida": 2.0,
+        "ig": null
+      },
+      {
+        "alimento": "Sidra",
+        "gramos_1_racion_hc": 200,
+        "medida_habitual": "Una copa (100cc)",
+        "raciones_hc_medida": 0.5,
+        "ig": null
+      },
+      {
+        "alimento": "Tónica",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "Un vaso o botellín (200cc)",
+        "raciones_hc_medida": 2.0,
+        "ig": 70
+      },
+      {
+        "alimento": "Vermut",
+        "gramos_1_racion_hc": 75,
+        "medida_habitual": "Una copa (100cc)",
+        "raciones_hc_medida": 1.3,
+        "ig": null
+      },
+      {
+        "alimento": "Vino blanco o tinto",
+        "gramos_1_racion_hc": "No valorable",
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Vino dulce",
+        "gramos_1_racion_hc": 75,
+        "medida_habitual": "Un chupito (30cc)",
+        "raciones_hc_medida": 0.4,
+        "ig": null
+      },
+      {
+        "alimento": "Zumo de fruta, natural o comercial",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "Un vaso o brick (200cc)",
+        "raciones_hc_medida": 2.0,
+        "ig": 60
+      },
+      {
+        "alimento": "Zumo de fruta \"sin azúcar añadido\"",
+        "gramos_1_racion_hc": 200,
+        "medida_habitual": "Un vaso o brick (200cc)",
+        "raciones_hc_medida": 1.0,
+        "ig": 45
+      },
+      {
+        "alimento": "Zumo de tomate",
+        "gramos_1_racion_hc": 200,
+        "medida_habitual": "Un vaso o brick (200cc)",
+        "raciones_hc_medida": 1.0,
+        "ig": 35
+      }
+    ]
+  },
+  {
+    "seccion": "07 Otros",
+    "alimentos": [
+      {
+        "alimento": "Arepa",
+        "gramos_1_racion_hc": 25,
+        "medida_habitual": "Unidad",
+        "raciones_hc_medida": 4.0,
+        "ig": 72
+      },
+      {
+        "alimento": "Azúcar blanco",
+        "gramos_1_racion_hc": 10,
+        "detalles_medida": [
+          {"medida": "Cucharada postre (8g)", "raciones_hc": 0.8},
+          {"medida": "Cucharada sopera (20g)", "raciones_hc": 2.0},
+          {"medida": "Sobre (8g)", "raciones_hc": 0.8}
+        ],
+        "ig": 70
+      },
+      {
+        "alimento": "Azúcar moreno",
+        "gramos_1_racion_hc": 10,
+        "detalles_medida": [
+          {"medida": "Cucharada postre (8g)", "raciones_hc": 0.8},
+          {"medida": "Cucharada sopera (20g)", "raciones_hc": 2.0},
+          {"medida": "Sobre (8g)", "raciones_hc": 0.8}
+        ],
+        "ig": 70
+      },
+      {
+        "alimento": "Barrita energética (de cereales)",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": "Unidad (25g)",
+        "raciones_hc_medida": 1.25,
+        "ig": 70
+      },
+      {
+        "alimento": "Bizcocho o melindro",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": "Unidad comercial individual (25g)",
+        "raciones_hc_medida": 1.25,
+        "ig": 65
+      },
+      {
+        "alimento": "Bollería, en general",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": 70
+      },
+      {
+        "alimento": "Cacao en polvo",
+        "gramos_1_racion_hc": 12,
+        "detalles_medida": [
+          {"medida": "Cucharada postre (8g)", "raciones_hc": 0.7},
+          {"medida": "Cucharada sopera (20g)", "raciones_hc": 1.7}
+        ],
+        "ig": null
+      },
+      {
+        "alimento": "Cacao en polvo sin azúcar",
+        "gramos_1_racion_hc": 22,
+        "detalles_medida": [
+          {"medida": "Cucharada postre (8g)", "raciones_hc": 0.4},
+          {"medida": "Cucharada sopera (20g)", "raciones_hc": 0.9}
+        ],
+        "ig": null
+      },
+      {
+        "alimento": "Calamares a la romana",
+        "gramos_1_racion_hc": 120,
+        "medida_habitual": "4 unidades",
+        "raciones_hc_medida": 1.0,
+        "ig": null
+      },
+      {
+        "alimento": "Canelones con bechamel",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "3 unidades (250g)",
+        "raciones_hc_medida": 2.5,
+        "ig": null
+      },
+      {
+        "alimento": "Caramelo",
+        "gramos_1_racion_hc": 12,
+        "medida_habitual": "Unidad (5g)",
+        "raciones_hc_medida": 0.4,
+        "ig": 70
+      },
+      {
+        "alimento": "Carne rebozada",
+        "gramos_1_racion_hc": 150,
+        "medida_habitual": "Un filete de 100g de carne",
+        "raciones_hc_medida": 0.6,
+        "ig": null
+      },
+      {
+        "alimento": "Chocolate blanco o con leche",
+        "gramos_1_racion_hc": 17,
+        "detalles_medida": [
+          {"medida": "Pastilla (8g)", "raciones_hc": 0.5},
+          {"medida": "Tableta individual (30g)", "raciones_hc": 1.7}
+        ],
+        "ig": 70
+      },
+      {
+        "alimento": "Chocolate negro",
+        "gramos_1_racion_hc": 25,
+        "detalles_medida": [
+          {"medida": "Pastilla (8g)", "raciones_hc": 0.3},
+          {"medida": "Tableta individual (30g)", "raciones_hc": 1.2}
+        ],
+        "ig": 20
+      },
+      {
+        "alimento": "Chocolate >90% cacao",
+        "gramos_1_racion_hc": 75,
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Churros",
+        "gramos_1_racion_hc": 25,
+        "medida_habitual": "2 unidades (25g)",
+        "raciones_hc_medida": 1.0,
+        "ig": null
+      },
+      {
+        "alimento": "Crema de cacao",
+        "gramos_1_racion_hc": 25,
+        "medida_habitual": "Cucharada sopera colmada (25g)",
+        "raciones_hc_medida": 1.0,
+        "ig": 55
+      },
+      {
+        "alimento": "Huevo de gallina, Talla S",
+        "gramos_1_racion_hc": "Sin HC",
+        "medida_habitual": "1 unidad (aprox. 50g)",
+        "raciones_hc_medida": 0,
+        "ig": 0
+      },
+      {
+        "alimento": "Huevo de gallina, Talla M",
+        "gramos_1_racion_hc": "Sin HC",
+        "medida_habitual": "1 unidad (aprox. 58g)",
+        "raciones_hc_medida": 0,
+        "ig": 0
+      },
+      {
+        "alimento": "Huevo de gallina, Talla L",
+        "gramos_1_racion_hc": "Sin HC",
+        "medida_habitual": "1 unidad (aprox. 68g)",
+        "raciones_hc_medida": 0,
+        "ig": 0
+      },
+      {
+        "alimento": "Huevo de gallina, Talla XL",
+        "gramos_1_racion_hc": "Sin HC",
+        "medida_habitual": "1 unidad (aprox. 75g)",
+        "raciones_hc_medida": 0,
+        "ig": 0
+      },
+      {
+        "alimento": "Surimi (palitos de cangrejo)",
+        "gramos_1_racion_hc": 100,
+        "medida_habitual": "Una barrita (20g)",
+        "raciones_hc_medida": 0.2,
+        "ig": null
+      },
+      {
+        "alimento": "Tofu",
+        "gramos_1_racion_hc": 300,
+        "medida_habitual": "Porción (100g)",
+        "raciones_hc_medida": 0.3,
+        "ig": null
+      },
+      {
+        "alimento": "Tortilla de patatas",
+        "gramos_1_racion_hc": 120,
+        "medida_habitual": "Tapa (120g)",
+        "raciones_hc_medida": 1.0,
+        "ig": null
+      },
+      {
+        "alimento": "Turrón tipo Alicante",
+        "gramos_1_racion_hc": 25,
+        "medida_habitual": "1/6 de tableta (50g)",
+        "raciones_hc_medida": 2.0,
+        "ig": null
+      },
+      {
+        "alimento": "Turrón tipo chocolate",
+        "gramos_1_racion_hc": 20,
+        "medida_habitual": "1/6 de tableta (50g)",
+        "raciones_hc_medida": 2.5,
+        "ig": null
+      },
+      {
+        "alimento": "Turrón tipo Jijona",
+        "gramos_1_racion_hc": 25,
+        "medida_habitual": "1/6 de tableta (50g)",
+        "raciones_hc_medida": 2.0,
+        "ig": null
+      },
+      {
+        "alimento": "Vinagre",
+        "gramos_1_racion_hc": "No valorable",
+        "medida_habitual": null,
+        "raciones_hc_medida": null,
+        "ig": null
+      },
+      {
+        "alimento": "Vinagre tipo Módena (caramelizado)",
+        "gramos_1_racion_hc": 15,
+        "medida_habitual": "Cucharada sopera (15g)",
+        "raciones_hc_medida": 1.0,
+        "ig": null
+      }
+    ]
+  }
+]
+    ]
+  }
+]

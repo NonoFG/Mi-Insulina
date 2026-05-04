@@ -25,7 +25,6 @@ form {
   flex-direction: column;
 }
 
-/* Estilos de input, select y botón */
 input, select {
   box-sizing: border-box;
   padding: 10px;
@@ -34,7 +33,7 @@ input, select {
   margin: 8px 0;
   font-size: 1em;
   color: var(--color-principal);
-  width: 100%; /* Asegura que también ocupe todo el ancho */
+  width: 100%;
 }
 
 button {
@@ -61,7 +60,6 @@ button {
   font-size: 0.9em;
 }
 
-/* Estilos de los selectores de tema y comida */
 .tema-selector {
   margin-top: 30px;
   text-align: center;
@@ -109,7 +107,6 @@ input[type="radio"] {
   gap: 1rem;
 }
 
-/* Estilos para el selector de tema */
 .tema-opcion {
   display: flex;
   align-items: center;
@@ -134,15 +131,12 @@ input[type="radio"] {
   color: white;
 }
 
-/* Estado de los inputs */
 input:placeholder-shown:not(.error),
 select:not(.error) {
   border: 1px solid #ccc;
   color: #ccc;
 }
 
-
-/* Estado de los inputs y select */
 input:placeholder-shown:not(.error),
 select:not(.error):not(.selected) {
   border: 1px solid #ccc;
@@ -167,7 +161,6 @@ body[data-tema="oscuro"] select.selected:not(.error) {
   color: var(--color-principal);
 }
 
-
 input.error,
 select.error {
   border: 2px solid crimson;
@@ -189,7 +182,6 @@ body[data-tema="oscuro"] select.error {
   text-align: left;
 }
 
-/* Estilos para el selector de comida */
 .campo {
   display: grid;
   grid-template-columns: minmax(120px, 1fr) 2fr;
@@ -206,22 +198,13 @@ body[data-tema="oscuro"] select.error {
 .campo input {
   width: 100%;
 }
-/*
-.campo .selector-opciones {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: nowrap;
-  gap: 5px;
-}*/
+
 .campo .selector-opciones {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* Divide en 4 columnas iguales */
+  grid-template-columns: repeat(4, 1fr);
   gap: 5px;
-  /*justify-content: space-between;
-  flex-wrap: nowrap;*/
-    justify-items: center;
+  justify-items: center;
 }
-
 
 .campo .comida-opcion {
   cursor: pointer;
@@ -230,6 +213,7 @@ body[data-tema="oscuro"] select.error {
 .campo .comida-opcion input[type="radio"] {
   display: none;
 }
+
 .campo .comida-opcion span {
   padding: 5px 8px;
   border: 2px solid var(--color-principal);
@@ -238,23 +222,9 @@ body[data-tema="oscuro"] select.error {
   transition: all 0.2s ease;
   font-size: 0.85em;
   display: block;
-  /* Añade esta línea para centrar el texto dentro de cada botón */
   text-align: center;
   min-width: 50px; 
 }
-
-/*
-.campo .comida-opcion span {
-  padding: 5px 8px;
-  border: 2px solid var(--color-principal);
-  border-radius: 12px;
-  color: var(--color-principal);
-  transition: all 0.2s ease;
-  font-size: 0.85em;
-  display: block;
-  text-align: center;
-  white-space: nowrap;
-}*/
 
 .campo .comida-opcion input[type="radio"]:checked + span {
   background-color: var(--color-principal);
@@ -269,11 +239,180 @@ body[data-tema="oscuro"] select.error {
     margin-bottom: 25px;
 }
 
+.raciones-extra {
+  align-items: start;
+}
 
-/* NUEVOS ESTILOS PARA DISPOSITIVOS MÓVILES */
+.raciones-extra-panel {
+  width: 100%;
+}
+
+.tutorial-raciones,
+.resumen-raciones-total {
+  color: var(--color-principal);
+}
+
+.tutorial-raciones {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 0.82em;
+  line-height: 1.35;
+}
+
+.resumen-raciones-total {
+  margin: 8px 0 0;
+  font-weight: 700;
+}
+
+.comida-tabla-hc {
+  align-items: start;
+  margin-bottom: 25px;
+}
+
+.alimentos-hc-panel {
+  width: 100%;
+}
+
+.alimentos-hc-controles {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 90px 86px;
+  gap: 8px;
+  align-items: center;
+}
+
+.alimentos-hc-controles input,
+.alimentos-hc-controles button {
+  margin: 0;
+}
+
+.alimentos-hc-controles button {
+  padding: 10px 8px;
+}
+
+.autocomplete-tabla-hc {
+  position: relative;
+  min-width: 0;
+}
+
+.opciones-tabla-hc {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid var(--color-principal);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.opciones-tabla-hc.visible {
+  display: block;
+}
+
+.opcion-tabla-hc {
+  width: 100%;
+  display: block;
+  padding: 10px 12px;
+  margin: 0;
+  background: transparent;
+  color: #222;
+  border: 0;
+  border-radius: 0;
+  text-align: left;
+}
+
+.opcion-tabla-hc:hover,
+.opcion-tabla-hc:focus {
+  background: rgba(126, 195, 132, 0.14);
+  color: #222;
+}
+
+.opcion-tabla-hc span,
+.opcion-tabla-hc small {
+  display: block;
+}
+
+.opcion-tabla-hc span {
+  color: var(--color-principal);
+  font-weight: 700;
+}
+
+.opcion-tabla-hc small {
+  margin-top: 3px;
+  color: #666;
+  font-size: 0.8em;
+}
+
+body[data-tema="oscuro"] .opciones-tabla-hc {
+  background: #333;
+  border-color: #444;
+}
+
+body[data-tema="oscuro"] .opcion-tabla-hc {
+  color: #f0f0f0;
+}
+
+body[data-tema="oscuro"] .opcion-tabla-hc:hover,
+body[data-tema="oscuro"] .opcion-tabla-hc:focus {
+  background: rgba(126, 195, 132, 0.18);
+  color: #f0f0f0;
+}
+
+body[data-tema="oscuro"] .opcion-tabla-hc small {
+  color: #aaa;
+}
+
+.ayuda-tabla-hc,
+.resumen-tabla-hc {
+  color: var(--color-principal);
+}
+
+.ayuda-tabla-hc {
+  display: block;
+  margin-top: 8px;
+}
+
+.resumen-tabla-hc {
+  margin: 8px 0 0;
+  font-weight: 700;
+}
+
+.alimentos-hc-seleccionados {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.alimentos-hc-seleccionados li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.alimentos-hc-seleccionados span {
+  overflow-wrap: anywhere;
+}
+
+.alimentos-hc-seleccionados button {
+  width: auto;
+  margin: 0;
+  padding: 7px 10px;
+  font-size: 0.85em;
+}
+
+body[data-tema="oscuro"] .alimentos-hc-seleccionados li {
+  border-bottom-color: #444;
+}
+
 @media (max-width: 768px) {
   .campo .selector-opciones {
-    /*display: grid;*/
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     justify-items: center;
@@ -283,5 +422,13 @@ body[data-tema="oscuro"] select.error {
     padding: 10px;
     font-size: 1em;
     min-width: 70px; 
+  }
+
+  .campo {
+    grid-template-columns: 1fr;
+  }
+
+  .alimentos-hc-controles {
+    grid-template-columns: 1fr;
   }
 }
