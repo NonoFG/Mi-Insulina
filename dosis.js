@@ -99,8 +99,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const racionesTablaHCTotal = getRacionesTablaHC();
     const racionesManuales = getRacionesManuales();
     const total = racionesComidaConfort + racionesTablaHCTotal + racionesManuales;
+    const crearLineaResumen = (operador, texto, valor) =>
+      `${operador} ${texto.padEnd(10, " ")}${formatNumero(valor).padStart(5, " ")}`;
 
-    resumenRacionesTotal.textContent = `Total comida: ${formatNumero(total)} raciones (confort ${formatNumero(racionesComidaConfort)} + alimentos ${formatNumero(racionesTablaHCTotal)} + extra ${formatNumero(racionesManuales)})`;
+    resumenRacionesTotal.textContent = [
+      crearLineaResumen(" ", "confort", racionesComidaConfort),
+      crearLineaResumen(" ", "alimentos", racionesTablaHCTotal),
+      crearLineaResumen("+", "extra", racionesManuales),
+      "------------------",
+      crearLineaResumen(" ", "raciones", total),
+    ].join("\n");
   };
 
   comidaConfortSelect.addEventListener("change", () => {
