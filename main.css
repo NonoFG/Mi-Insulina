@@ -208,6 +208,7 @@ body[data-tema="oscuro"] select.error {
 
 .campo .comida-opcion {
   cursor: pointer;
+  width: 100%;
 }
 
 .campo .comida-opcion input[type="radio"] {
@@ -223,6 +224,8 @@ body[data-tema="oscuro"] select.error {
   font-size: 0.85em;
   display: block;
   text-align: center;
+  box-sizing: border-box;
+  width: 100%;
   min-width: 50px; 
 }
 
@@ -421,15 +424,15 @@ body[data-tema="oscuro"] .alimentos-hc-seleccionados li {
 
 @media (max-width: 768px) {
   .campo .selector-opciones {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
     justify-items: center;
   }
 
   .campo .comida-opcion span {
-    padding: 10px;
-    font-size: 1em;
-    min-width: 70px; 
+    padding: 8px 4px;
+    font-size: 0.78em;
+    min-width: 0;
   }
 
   .campo {
