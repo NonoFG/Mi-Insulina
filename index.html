@@ -23,11 +23,52 @@
 <body>
   <div class="app-container">
     <header>
+      <div class="header-top">
+        <button type="button" id="btnAjustes" class="btn-ajustes" aria-label="Ajustes" title="Ajustes">⚙️</button>
+      </div>
       <h1>Calculadora de insulina para <em>mi novia</em> ✨✨</h1>
     </header>
 
+    <div id="modalAjustes" class="modal-overlay" hidden>
+      <div class="modal-contenido">
+        <h2>Ajustes</h2>
+        <div class="campo">
+          <label for="gramosPorRacionInput">1 Ración =</label>
+          <input type="number" id="gramosPorRacionInput" min="1" step="1" value="10">
+        </div>
+        <small class="ayuda-ajustes">Gramos de hidratos de carbono que equivalen a 1 ración. Se usa en los conversores de raciones y gramos.</small>
+
+        <h3 class="ajustes-subtitulo">Cálculo de UGP</h3>
+        <div class="campo">
+          <label for="kcalProteinaInput">Kcal por g proteína:</label>
+          <input type="number" id="kcalProteinaInput" min="0" step="0.1" value="4">
+        </div>
+        <div class="campo">
+          <label for="kcalGrasaInput">Kcal por g grasa:</label>
+          <input type="number" id="kcalGrasaInput" min="0" step="0.1" value="9">
+        </div>
+        <div class="campo">
+          <label for="kcalPorUgpInput">Kcal por 1 UGP:</label>
+          <input type="number" id="kcalPorUgpInput" min="1" step="1" value="150">
+        </div>
+        <small class="ayuda-ajustes">Valores por defecto según tu tabla: proteína 4 kcal/g, grasa 9 kcal/g, 1 UGP = 150 kcal.</small>
+
+        <div class="modal-botones">
+          <button type="button" id="cerrarAjustes" class="boton-secundario">Cancelar</button>
+          <button type="button" id="guardarAjustes">Guardar</button>
+        </div>
+      </div>
+    </div>
+
     <main>
-      <form id="dosisForm" novalidate>
+      <nav class="tabs-selector" role="tablist">
+        <button type="button" class="tab-boton activo" data-tab="dosis" role="tab" aria-selected="true">Dosis</button>
+        <button type="button" class="tab-boton" data-tab="raciones-gramos" role="tab" aria-selected="false">Raciones → Gramos</button>
+        <button type="button" class="tab-boton" data-tab="gramos-raciones" role="tab" aria-selected="false">Gramos → Raciones</button>
+      </nav>
+
+      <section class="tab-panel" id="panel-dosis" role="tabpanel">
+        <form id="dosisForm" novalidate>
         <div class="campo comida-selector">
           <label>¿Comida?</label>
           <div class="selector-opciones">
@@ -74,6 +115,11 @@
             <small id="estado-tabla-hc" class="ayuda-tabla-hc"></small>
             <ul id="alimentos-tabla-hc-seleccionados" class="alimentos-hc-seleccionados"></ul>
             <p id="resumen-tabla-hc" class="resumen-tabla-hc">0 raciones anadidas</p>
+            <p id="resumen-totales-tabla-hc" class="resumen-totales-tabla-hc"></p>
+            <div class="enviar-conversor-botones">
+              <button type="button" id="btn-enviar-raciones-gramos" class="boton-secundario" disabled>Usar en Raciones → Gramos</button>
+              <button type="button" id="btn-enviar-gramos-raciones" class="boton-secundario" disabled>Usar en Gramos → Raciones</button>
+            </div>
           </div>
         </div>
 
@@ -127,10 +173,61 @@
         </div>
 
         <button type="submit">Calcular dosis</button>
-      </form>
+        </form>
 
-      <div id="resultado" class="resultado"></div>
-      <div id="historial" class="historial"></div>
+        <div id="resultado" class="resultado"></div>
+        <div id="historial" class="historial"></div>
+      </section>
+
+      <section class="tab-panel" id="panel-raciones-gramos" role="tabpanel" hidden>
+        <div class="conversor-card" id="conversorRacionesGramos">
+          <h2>Raciones → Gramos</h2>
+          <div class="campo">
+            <label for="rg-hc100">Hidratos de carbono (g):</label>
+            <input type="number" id="rg-hc100" min="0" step="0.1" placeholder="por cada 100g">
+          </div>
+          <div class="campo">
+            <label for="rg-raciones">Raciones <small class="equivalencia-nota">(1R = <span class="equivalencia-racion">10</span>g HC)</small>:</label>
+            <input type="number" id="rg-raciones" min="0" step="0.1" placeholder=" ">
+          </div>
+          <p class="resultado-conversor" id="rg-resultado-gramos">Gramos necesarios: —</p>
+
+          <div class="campo campo-opcional">
+            <label for="rg-grasas">Grasas (g) <small>(opcional)</small>:</label>
+            <input type="number" id="rg-grasas" min="0" step="0.1" placeholder="por cada 100g">
+          </div>
+          <div class="campo campo-opcional">
+            <label for="rg-proteinas">Proteínas (g) <small>(opcional)</small>:</label>
+            <input type="number" id="rg-proteinas" min="0" step="0.1" placeholder="por cada 100g">
+          </div>
+          <p class="resultado-conversor" id="rg-resultado-ugp">UGP: — <small>(Consulta tu UGP con el médico)</small></p>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="panel-gramos-raciones" role="tabpanel" hidden>
+        <div class="conversor-card" id="conversorGramosRaciones">
+          <h2>Gramos → Raciones</h2>
+          <div class="campo">
+            <label for="gr-hc100">Hidratos de carbono (g):</label>
+            <input type="number" id="gr-hc100" min="0" step="0.1" placeholder="por cada 100g">
+          </div>
+          <div class="campo">
+            <label for="gr-gramos">Gramos:</label>
+            <input type="number" id="gr-gramos" min="0" step="0.1" placeholder=" ">
+          </div>
+          <p class="resultado-conversor" id="gr-resultado-raciones">Raciones: —</p>
+
+          <div class="campo campo-opcional">
+            <label for="gr-grasas">Grasas (g) <small>(opcional)</small>:</label>
+            <input type="number" id="gr-grasas" min="0" step="0.1" placeholder="por cada 100g">
+          </div>
+          <div class="campo campo-opcional">
+            <label for="gr-proteinas">Proteínas (g) <small>(opcional)</small>:</label>
+            <input type="number" id="gr-proteinas" min="0" step="0.1" placeholder="por cada 100g">
+          </div>
+          <p class="resultado-conversor" id="gr-resultado-ugp">UGP: — <small>(Consulta tu UGP con el médico)</small></p>
+        </div>
+      </section>
 
       <div class="tema-selector">
         <label class="tema-opcion">

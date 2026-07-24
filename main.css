@@ -433,6 +433,41 @@ body[data-tema="oscuro"] .opcion-tabla-hc small {
   font-weight: 700;
 }
 
+.resumen-totales-tabla-hc {
+  margin: 4px 0 0;
+  font-size: 0.85em;
+  color: var(--color-principal);
+  line-height: 1.4;
+}
+
+.resumen-totales-tabla-hc:empty {
+  display: none;
+}
+
+.enviar-conversor-botones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.enviar-conversor-botones button {
+  margin: 0;
+  padding: 8px 6px;
+  font-size: 0.78em;
+}
+
+.enviar-conversor-botones button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .enviar-conversor-botones {
+    grid-template-columns: 1fr;
+  }
+}
+
 .alimentos-hc-seleccionados {
   list-style: none;
   margin: 10px 0 0;
@@ -483,4 +518,167 @@ body[data-tema="oscuro"] .alimentos-hc-seleccionados li {
   .alimentos-hc-controles {
     grid-template-columns: 1fr;
   }
+
+  .tab-boton {
+    font-size: 0.72em;
+    padding: 8px 4px;
+  }
+}
+
+/* --- ⚙️ Botón de ajustes y modal --- */
+.header-top {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-ajustes {
+  width: auto;
+  margin: 0 0 4px;
+  padding: 6px 8px;
+  background: none;
+  border: none;
+  font-size: 1.4em;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-principal);
+}
+
+.btn-ajustes:hover {
+  opacity: 0.75;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+
+.modal-overlay[hidden] {
+  display: none;
+}
+
+.modal-contenido {
+  width: 100%;
+  max-width: 340px;
+  background: #f9f9f9;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.modal-contenido h2 {
+  margin-top: 0;
+  color: var(--color-principal);
+  text-align: center;
+}
+
+.ajustes-subtitulo {
+  margin: 18px 0 4px;
+  color: var(--color-principal);
+  font-size: 0.95em;
+  border-top: 1px solid var(--color-principal);
+  padding-top: 12px;
+  opacity: 0.9;
+}
+
+.ayuda-ajustes {
+  display: block;
+  color: var(--color-principal);
+  font-size: 0.82em;
+  line-height: 1.35;
+  margin-top: -4px;
+}
+
+.modal-botones {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.modal-botones button {
+  margin: 0;
+}
+
+.boton-secundario {
+  background-color: transparent !important;
+  color: var(--color-principal) !important;
+  border: 2px solid var(--color-principal) !important;
+}
+
+body[data-tema="oscuro"] .modal-contenido {
+  background: #2a2a2a;
+}
+
+/* --- 📑 Pestañas de navegación --- */
+.tabs-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.tab-boton {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 10px 6px;
+  background: transparent;
+  color: var(--color-principal);
+  border: 2px solid var(--color-principal);
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-boton.activo {
+  background-color: var(--color-principal);
+  color: white;
+}
+
+.tab-panel[hidden] {
+  display: none;
+}
+
+/* --- 🔄 Conversores raciones / gramos --- */
+.conversor-card h2 {
+  color: var(--color-principal);
+  font-size: 1.15em;
+  margin: 0 0 12px;
+  text-align: center;
+}
+
+.conversor-card .campo-opcional {
+  opacity: 0.9;
+}
+
+.equivalencia-nota {
+  display: block;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+.resultado-conversor {
+  margin: 6px 0 18px;
+  font-weight: 700;
+  color: var(--color-principal);
+  text-align: center;
+}
+
+.resultado-conversor small {
+  display: block;
+  font-weight: 400;
+  font-size: 0.75em;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+.resultado-conversor strong {
+  font-size: 1.1em;
 }
