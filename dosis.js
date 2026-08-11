@@ -80,7 +80,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const estadoTablaHC = document.getElementById("estado-tabla-hc");
   const resumenTablaHC = document.getElementById("resumen-tabla-hc");
   const resumenTotalesTablaHC = document.getElementById("resumen-totales-tabla-hc");
-  const btnEnviarRacionesGramos = document.getElementById("btn-enviar-raciones-gramos");
   const btnEnviarGramosRaciones = document.getElementById("btn-enviar-gramos-raciones");
   const resumenRacionesTotal = document.getElementById("resumen-raciones-total");
 
@@ -309,7 +308,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ? `Total: ${formatNumero(totales.gramos)}g · HC ${formatNumero(totales.carbohidratos)}g · Grasas ${formatNumero(totales.grasas)}g · Proteinas ${formatNumero(totales.proteinas)}g`
       : "";
 
-    btnEnviarRacionesGramos.disabled = !hayAlimentos || totales.carbohidratos <= 0;
     btnEnviarGramosRaciones.disabled = !hayAlimentos || totales.gramos <= 0;
 
     actualizarResumenRaciones();
@@ -357,13 +355,29 @@ document.addEventListener("DOMContentLoaded", () => {
     gramosTablaHCInput.focus();
   };
 
-  const getAlimentosFiltradosTablaHC = () => {
+const getAlimentosFiltradosTablaHC = () => {
     const busqueda = normalizarTexto(alimentoTablaHCInput.value);
     if (!busqueda) return [];
 
     return alimentosTablaHC
-      .filter((alimento) => normalizarTexto(alimento.etiqueta).includes(busqueda))
-      .slice(0, 8);
+      .map((alimento) => {
+        const nombre = normalizarTexto(alimento.nombre);
+        let relevancia = -1;
+
+        if (nombre.startsWith(busqueda)) {
+          relevancia = 0; // El nombre empieza justo por lo escrito (mejor coincidencia)
+        } else if (nombre.split(" ").some((palabra) => palabra.startsWith(busqueda))) {
+          relevancia = 1; // Alguna palabra del nombre empieza por lo escrito
+        } else if (nombre.includes(busqueda)) {
+          relevancia = 2; // Aparece en cualquier parte del nombre
+        }
+
+        return { alimento, relevancia };
+      })
+      .filter((item) => item.relevancia !== -1)
+      .sort((a, b) => a.relevancia - b.relevancia || a.alimento.etiqueta.localeCompare(b.alimento.etiqueta, "es"))
+      .slice(0, 8)
+      .map((item) => item.alimento);
   };
 
   const renderOpcionesTablaHC = () => {
@@ -507,36 +521,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Envia la mezcla acumulada de alimentos (HC/grasas/proteinas por cada 100g
-  // equivalentes) a los conversores, manteniendo el mismo resultado final.
-  const enviarTotalesAConversor = (destino) => {
+  // Envia los totales acumulados de alimentos (HC/grasas/proteinas en gramos)
+  // al conversor, como una entrada mas en cada acumulador.
+  const enviarTotalesAConversor = () => {
     const totales = getTotalesTablaHC();
     if (!alimentosSeleccionadosTablaHC.length || totales.gramos <= 0) return;
 
-    const hc100 = (totales.carbohidratos / totales.gramos) * 100;
-    const grasas100 = (totales.grasas / totales.gramos) * 100;
-    const proteinas100 = (totales.proteinas / totales.gramos) * 100;
+    acumuladorHC.setEntradas(totales.carbohidratos > 0 ? [{ gramos: totales.carbohidratos }] : []);
+    acumuladorGrasas.setEntradas(totales.grasas > 0 ? [{ gramos: totales.grasas }] : []);
+    acumuladorProteinas.setEntradas(totales.proteinas > 0 ? [{ gramos: totales.proteinas }] : []);
 
-    if (destino === "raciones-gramos") {
-      rgHc100.value = formatNumero(hc100);
-      rgGrasas.value = totales.grasas > 0 ? formatNumero(grasas100) : "";
-      rgProteinas.value = totales.proteinas > 0 ? formatNumero(proteinas100) : "";
-      rgRaciones.value = "";
-      calcularRacionesAGramos();
-      activarTab("raciones-gramos");
-      rgRaciones.focus();
-    } else {
-      grHc100.value = formatNumero(hc100);
-      grGrasas.value = totales.grasas > 0 ? formatNumero(grasas100) : "";
-      grProteinas.value = totales.proteinas > 0 ? formatNumero(proteinas100) : "";
-      grGramos.value = formatNumero(totales.gramos);
-      calcularGramosARaciones();
-      activarTab("gramos-raciones");
-    }
+    activarTab("gramos-raciones");
   };
 
-  btnEnviarRacionesGramos.addEventListener("click", () => enviarTotalesAConversor("raciones-gramos"));
-  btnEnviarGramosRaciones.addEventListener("click", () => enviarTotalesAConversor("gramos-raciones"));
+  btnEnviarGramosRaciones.addEventListener("click", enviarTotalesAConversor);
 
   actualizarResumenRaciones();
   cargarAlimentosTablaHC();
@@ -649,6 +647,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     resultadoDiv.textContent = `💉 Dosis recomendada: ${dosisTotal} unidades (${formatNumero(raciones)} raciones totales)`;
 
+    if (nutricionExportadaDosis) {
+      const { grasas, proteinas, ugp, kcal } = nutricionExportadaDosis;
+      resultadoDiv.innerHTML += `<br><small>⚖️ Grasas ${formatNumero(grasas)}g · Proteínas ${formatNumero(proteinas)}g · UGP ${formatNumero(ugp)} (${formatNumero(kcal)} kcal) — consulta con tu médico si procede bolo extendido</small>`;
+    }
+
     // Historial
     const textoRaciones = raciones === 1 ? "ración" : "raciones";
     const entrada = `🍽️ ${formatNumero(raciones)} ${textoRaciones}, 🩸 ${glucosa} mg/dL → 💉 ${dosisTotal}u`;
@@ -698,13 +701,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const kcalPorUgpInput = document.getElementById("kcalPorUgpInput");
   const guardarAjustesBtn = document.getElementById("guardarAjustes");
   const cerrarAjustesBtn = document.getElementById("cerrarAjustes");
-  const equivalenciaSpans = document.querySelectorAll(".equivalencia-racion");
-
-  const actualizarEquivalenciaMostrada = () => {
-    equivalenciaSpans.forEach((span) => {
-      span.textContent = formatNumero(gramosPorRacion);
-    });
-  };
 
   const abrirAjustes = () => {
     gramosPorRacionInput.value = gramosPorRacion;
@@ -762,28 +758,18 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem(CLAVE_KCAL_GRASA, String(kcalPorGramoGrasa));
       localStorage.setItem(CLAVE_KCAL_POR_UGP, String(kcalPorUGP));
 
-      actualizarEquivalenciaMostrada();
-      calcularRacionesAGramos();
-      calcularGramosARaciones();
+      recalcularConversor();
       cerrarAjustesModal();
     });
   }
 
-  actualizarEquivalenciaMostrada();
-
   // --- ⚖️ Cálculo de UGP (Unidades de Grasa/Proteína) ---
   // UGP = (g grasa x kcal/g grasa + g proteina x kcal/g proteina) / kcal por 1 UGP
   // Por defecto: proteina 4 kcal/g, grasa 9 kcal/g, 1 UGP = 150 kcal (configurable en Ajustes)
-  const calcularUGP = (grasas100gValor, proteinas100gValor, gramosBase) => {
-    const grasas100g = parseNumero(grasas100gValor);
-    const proteinas100g = parseNumero(proteinas100gValor);
+  const calcularUGPDesdeGramos = (gramosGrasas, gramosProteinas) => {
+    if ((!gramosGrasas || gramosGrasas <= 0) && (!gramosProteinas || gramosProteinas <= 0)) return null;
 
-    if (grasas100g === null && proteinas100g === null) return null;
-
-    const gramosGrasas = ((grasas100g || 0) * gramosBase) / 100;
-    const gramosProteinas = ((proteinas100g || 0) * gramosBase) / 100;
-    const kcalTotal = (gramosGrasas * kcalPorGramoGrasa) + (gramosProteinas * kcalPorGramoProteina);
-
+    const kcalTotal = ((gramosGrasas || 0) * kcalPorGramoGrasa) + ((gramosProteinas || 0) * kcalPorGramoProteina);
     return { ugp: kcalTotal / kcalPorUGP, kcal: kcalTotal };
   };
 
@@ -793,69 +779,178 @@ document.addEventListener("DOMContentLoaded", () => {
       : `UGP: <strong>${formatNumero(resultado.ugp)}</strong> <small>(${formatNumero(resultado.kcal)} kcal · Consulta tu UGP con el médico)</small>`;
   };
 
-  // --- 🔄 Conversor: Raciones → Gramos ---
-  const rgHc100 = document.getElementById("rg-hc100");
-  const rgRaciones = document.getElementById("rg-raciones");
-  const rgGrasas = document.getElementById("rg-grasas");
-  const rgProteinas = document.getElementById("rg-proteinas");
-  const rgResultadoGramos = document.getElementById("rg-resultado-gramos");
-  const rgResultadoUGP = document.getElementById("rg-resultado-ugp");
+  // --- 🔄 Conversor: Gramos → Raciones (Hidratos / Grasas / Proteínas) ---
+  // Cada nutriente tiene su propio acumulador: se puede indicar "por cada 100g" +
+  // "Gramos" (se calcula la aportacion) o solo "Gramos" (se suma directo), y
+  // anadir tantas entradas como se quiera; todas se van sumando al total.
+  const crearAcumuladorNutriente = ({ prefijo, etiqueta, onCambio }) => {
+    const per100Input = document.getElementById(`${prefijo}-100g`);
+    const gramosInput = document.getElementById(`${prefijo}-gramos`);
+    const anadirBtn = document.getElementById(`${prefijo}-anadir`);
+    const listaElemento = document.getElementById(`${prefijo}-lista`);
+    const totalElemento = document.getElementById(`${prefijo}-total`);
 
-  var calcularRacionesAGramos = () => {
-    if (!rgHc100) return;
+    let entradas = [];
 
-    const hc100 = parseNumero(rgHc100.value);
-    const raciones = parseNumero(rgRaciones.value);
+    const render = () => {
+      listaElemento.innerHTML = "";
 
-    if (!hc100 || hc100 <= 0 || raciones === null || raciones < 0) {
-      rgResultadoGramos.textContent = "Gramos necesarios: —";
-      pintarResultadoUGP(rgResultadoUGP, null);
+      entradas.forEach((entrada) => {
+        const li = document.createElement("li");
+
+        const texto = document.createElement("span");
+        texto.textContent = `${formatNumero(entrada.gramos)}g`;
+
+        const btnQuitar = document.createElement("button");
+        btnQuitar.type = "button";
+        btnQuitar.className = "boton-secundario";
+        btnQuitar.textContent = "Quitar";
+        btnQuitar.addEventListener("click", () => {
+          entradas = entradas.filter((e) => e !== entrada);
+          render();
+          onCambio();
+        });
+
+        li.append(texto, btnQuitar);
+        listaElemento.appendChild(li);
+      });
+
+      const total = entradas.reduce((suma, entrada) => suma + entrada.gramos, 0);
+      totalElemento.textContent = total > 0 ? `Total ${etiqueta} sumados: ${formatNumero(total)}g` : "";
+    };
+
+    anadirBtn.addEventListener("click", () => {
+      const per100 = parseNumero(per100Input.value);
+      const gramos = parseNumero(gramosInput.value);
+      if (gramos === null || gramos <= 0) return;
+
+      // Si hay valor "por cada 100g", se calcula la aportacion real;
+      // si no, los gramos introducidos se suman directamente.
+      const valorAAgregar = per100 !== null ? (per100 * gramos) / 100 : gramos;
+      if (valorAAgregar <= 0) return;
+
+      entradas.push({ gramos: valorAAgregar });
+      per100Input.value = "";
+      gramosInput.value = "";
+      render();
+      onCambio();
+    });
+
+    gramosInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        anadirBtn.click();
+      }
+    });
+
+    return {
+      getTotal: () => entradas.reduce((suma, entrada) => suma + entrada.gramos, 0),
+      setEntradas: (nuevasEntradas) => {
+        entradas = nuevasEntradas;
+        render();
+        onCambio();
+      },
+    };
+  };
+
+  const convResultadoRaciones = document.getElementById("conv-resultado-raciones");
+  const convResultadoUGP = document.getElementById("conv-resultado-ugp");
+  const convBtnEnviarDosis = document.getElementById("conv-btn-enviar-dosis");
+
+  let convUltimoUGP = null;
+  let convUltimoGrasasTotales = 0;
+  let convUltimoProteinasTotales = 0;
+const convBtnEnviarHCDosis = document.getElementById("conv-btn-enviar-hc-dosis");
+
+let convUltimasRaciones = null;
+  const recalcularConversor = () => {
+  const totalHC = acumuladorHC.getTotal();
+
+  if (totalHC > 0) {
+    convUltimasRaciones = totalHC / gramosPorRacion;
+    convResultadoRaciones.innerHTML = `Raciones: <strong>${formatNumero(convUltimasRaciones)}</strong>`;
+  } else {
+    convUltimasRaciones = null;
+    convResultadoRaciones.textContent = "Raciones: —";
+  }
+
+  convBtnEnviarHCDosis.disabled = convUltimasRaciones === null;
+
+  convUltimoGrasasTotales = acumuladorGrasas.getTotal();
+  convUltimoProteinasTotales = acumuladorProteinas.getTotal();
+
+  convUltimoUGP = calcularUGPDesdeGramos(convUltimoGrasasTotales, convUltimoProteinasTotales);
+  pintarResultadoUGP(convResultadoUGP, convUltimoUGP);
+
+  convBtnEnviarDosis.disabled = !convUltimoUGP;
+  };
+convBtnEnviarHCDosis.addEventListener("click", () => {
+  if (convUltimasRaciones === null) return;
+  racionesInput.value = formatNumero(convUltimasRaciones);
+  racionesInput.classList.remove("error");
+  actualizarResumenRaciones();
+  activarTab("dosis");
+});
+  const acumuladorHC = crearAcumuladorNutriente({ prefijo: "conv-hc", etiqueta: "hidratos", onCambio: () => recalcularConversor() });
+  const acumuladorGrasas = crearAcumuladorNutriente({ prefijo: "conv-grasa", etiqueta: "grasas", onCambio: () => recalcularConversor() });
+  const acumuladorProteinas = crearAcumuladorNutriente({ prefijo: "conv-prot", etiqueta: "proteinas", onCambio: () => recalcularConversor() });
+
+  recalcularConversor();
+
+  // --- 📤 Exportar grasas/proteínas (UGP) al apartado de Dosis ---
+  const resumenNutricionDosis = document.getElementById("resumen-nutricion-dosis");
+  const resumenNutricionDosisTexto = document.getElementById("resumen-nutricion-dosis-texto");
+  const btnQuitarNutricionDosis = document.getElementById("btn-quitar-nutricion-dosis");
+  const CLAVE_NUTRICION_DOSIS = "nutricionExportadaDosis";
+
+  let nutricionExportadaDosis = null;
+
+  const pintarResumenNutricionDosis = () => {
+    if (!nutricionExportadaDosis) {
+      resumenNutricionDosis.hidden = true;
       return;
     }
 
-    const gramosNecesarios = (raciones * gramosPorRacion * 100) / hc100;
-    rgResultadoGramos.innerHTML = `Gramos necesarios: <strong>${formatNumero(gramosNecesarios)} g</strong>`;
-
-    const ugp = calcularUGP(rgGrasas.value, rgProteinas.value, gramosNecesarios);
-    pintarResultadoUGP(rgResultadoUGP, ugp);
+    const { grasas, proteinas, ugp, kcal } = nutricionExportadaDosis;
+    resumenNutricionDosisTexto.textContent =
+      `Grasas ${formatNumero(grasas)}g · Proteínas ${formatNumero(proteinas)}g · UGP ${formatNumero(ugp)} (${formatNumero(kcal)} kcal)`;
+    resumenNutricionDosis.hidden = false;
   };
 
-  if (rgHc100) {
-    [rgHc100, rgRaciones, rgGrasas, rgProteinas].forEach((input) => {
-      input.addEventListener("input", calcularRacionesAGramos);
-    });
-  }
-
-  // --- 🔄 Conversor: Gramos → Raciones ---
-  const grHc100 = document.getElementById("gr-hc100");
-  const grGramos = document.getElementById("gr-gramos");
-  const grGrasas = document.getElementById("gr-grasas");
-  const grProteinas = document.getElementById("gr-proteinas");
-  const grResultadoRaciones = document.getElementById("gr-resultado-raciones");
-  const grResultadoUGP = document.getElementById("gr-resultado-ugp");
-
-  var calcularGramosARaciones = () => {
-    if (!grHc100) return;
-
-    const hc100 = parseNumero(grHc100.value);
-    const gramos = parseNumero(grGramos.value);
-
-    if (!hc100 || hc100 <= 0 || gramos === null || gramos < 0) {
-      grResultadoRaciones.textContent = "Raciones: —";
-      pintarResultadoUGP(grResultadoUGP, null);
-      return;
+  const cargarNutricionExportadaDosis = () => {
+    try {
+      const guardado = localStorage.getItem(CLAVE_NUTRICION_DOSIS);
+      nutricionExportadaDosis = guardado ? JSON.parse(guardado) : null;
+    } catch {
+      nutricionExportadaDosis = null;
     }
-
-    const raciones = (gramos * hc100) / 100 / gramosPorRacion;
-    grResultadoRaciones.innerHTML = `Raciones: <strong>${formatNumero(raciones)}</strong>`;
-
-    const ugp = calcularUGP(grGrasas.value, grProteinas.value, gramos);
-    pintarResultadoUGP(grResultadoUGP, ugp);
+    pintarResumenNutricionDosis();
   };
 
-  if (grHc100) {
-    [grHc100, grGramos, grGrasas, grProteinas].forEach((input) => {
-      input.addEventListener("input", calcularGramosARaciones);
-    });
-  }
+  const exportarNutricionADosis = (grasasG, proteinasG, resultadoUGP) => {
+    if (!resultadoUGP) return;
+
+    nutricionExportadaDosis = {
+      grasas: grasasG || 0,
+      proteinas: proteinasG || 0,
+      ugp: resultadoUGP.ugp,
+      kcal: resultadoUGP.kcal,
+    };
+    localStorage.setItem(CLAVE_NUTRICION_DOSIS, JSON.stringify(nutricionExportadaDosis));
+    pintarResumenNutricionDosis();
+    activarTab("dosis");
+  };
+
+  convBtnEnviarDosis.addEventListener("click", () => {
+    if (!convUltimoUGP) return;
+    exportarNutricionADosis(convUltimoGrasasTotales, convUltimoProteinasTotales, convUltimoUGP);
+  });
+
+  btnQuitarNutricionDosis.addEventListener("click", () => {
+    nutricionExportadaDosis = null;
+    localStorage.removeItem(CLAVE_NUTRICION_DOSIS);
+    pintarResumenNutricionDosis();
+  });
+
+  cargarNutricionExportadaDosis();
 });

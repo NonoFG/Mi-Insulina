@@ -63,7 +63,6 @@
     <main>
       <nav class="tabs-selector" role="tablist">
         <button type="button" class="tab-boton activo" data-tab="dosis" role="tab" aria-selected="true">Dosis</button>
-        <button type="button" class="tab-boton" data-tab="raciones-gramos" role="tab" aria-selected="false">Raciones → Gramos</button>
         <button type="button" class="tab-boton" data-tab="gramos-raciones" role="tab" aria-selected="false">Gramos → Raciones</button>
       </nav>
 
@@ -117,8 +116,7 @@
             <p id="resumen-tabla-hc" class="resumen-tabla-hc">0 raciones anadidas</p>
             <p id="resumen-totales-tabla-hc" class="resumen-totales-tabla-hc"></p>
             <div class="enviar-conversor-botones">
-              <button type="button" id="btn-enviar-raciones-gramos" class="boton-secundario" disabled>Usar en Raciones → Gramos</button>
-              <button type="button" id="btn-enviar-gramos-raciones" class="boton-secundario" disabled>Usar en Gramos → Raciones</button>
+              <button type="button" id="btn-enviar-gramos-raciones" class="boton-secundario boton-enviar-dosis" disabled>Usar en Gramos → Raciones</button>
             </div>
           </div>
         </div>
@@ -177,55 +175,70 @@
 
         <div id="resultado" class="resultado"></div>
         <div id="historial" class="historial"></div>
-      </section>
 
-      <section class="tab-panel" id="panel-raciones-gramos" role="tabpanel" hidden>
-        <div class="conversor-card" id="conversorRacionesGramos">
-          <h2>Raciones → Gramos</h2>
-          <div class="campo">
-            <label for="rg-hc100">Hidratos de carbono (g):</label>
-            <input type="number" id="rg-hc100" min="0" step="0.1" placeholder="por cada 100g">
-          </div>
-          <div class="campo">
-            <label for="rg-raciones">Raciones: <small class="equivalencia-nota">(1R = <span class="equivalencia-racion">10</span>g HC)</small></label>
-            <input type="number" id="rg-raciones" min="0" step="0.1" placeholder=" ">
-          </div>
-          <p class="resultado-conversor" id="rg-resultado-gramos">Gramos necesarios: —</p>
-
-          <div class="campo campo-opcional">
-            <label for="rg-grasas">Grasas (g) <small>(opcional)</small>:</label>
-            <input type="number" id="rg-grasas" min="0" step="0.1" placeholder="por cada 100g">
-          </div>
-          <div class="campo campo-opcional">
-            <label for="rg-proteinas">Proteínas (g) <small>(opcional)</small>:</label>
-            <input type="number" id="rg-proteinas" min="0" step="0.1" placeholder="por cada 100g">
-          </div>
-          <p class="resultado-conversor" id="rg-resultado-ugp">UGP: — <small>(Consulta tu UGP con el médico)</small></p>
+        <div id="resumen-nutricion-dosis" class="resumen-nutricion-dosis" hidden>
+          <span id="resumen-nutricion-dosis-texto"></span>
+          <button type="button" id="btn-quitar-nutricion-dosis" aria-label="Quitar">✕</button>
         </div>
       </section>
 
       <section class="tab-panel" id="panel-gramos-raciones" role="tabpanel" hidden>
         <div class="conversor-card" id="conversorGramosRaciones">
           <h2>Gramos → Raciones</h2>
-          <div class="campo">
-            <label for="gr-hc100">Hidratos de carbono (g):</label>
-            <input type="number" id="gr-hc100" min="0" step="0.1" placeholder="por cada 100g">
-          </div>
-          <div class="campo">
-            <label for="gr-gramos">Gramos:</label>
-            <input type="number" id="gr-gramos" min="0" step="0.1" placeholder=" ">
-          </div>
-          <p class="resultado-conversor" id="gr-resultado-raciones">Raciones: —</p>
 
-          <div class="campo campo-opcional">
-            <label for="gr-grasas">Grasas (g) <small>(opcional)</small>:</label>
-            <input type="number" id="gr-grasas" min="0" step="0.1" placeholder="por cada 100g">
+          <div class="acumulador-nutriente">
+            <p class="acumulador-titulo">Hidratos de carbono</p>
+            <div class="campo campo-opcional">
+              <label for="conv-hc-100g">Hidratos de carbono (g):</label>
+              <input type="number" id="conv-hc-100g" min="0" step="0.1" placeholder="por cada 100g (opcional)">
+            </div>
+            <div class="campo campo-opcional">
+              <label for="conv-hc-gramos">Gramos:</label>
+              <input type="number" id="conv-hc-gramos" min="0" step="0.1" placeholder="gramos del alimento">
+            </div>
+            <button type="button" id="conv-hc-anadir">+ Añadir</button>
+            <small class="ayuda-acumulador">Si dejas "Hidratos de carbono (g)" vacío, los gramos se suman directamente.</small>
+            <ul id="conv-hc-lista" class="lista-acumulador"></ul>
+            <p id="conv-hc-total" class="total-acumulador"></p>
           </div>
-          <div class="campo campo-opcional">
-            <label for="gr-proteinas">Proteínas (g) <small>(opcional)</small>:</label>
-            <input type="number" id="gr-proteinas" min="0" step="0.1" placeholder="por cada 100g">
+          <p class="resultado-conversor" id="conv-resultado-raciones">Raciones: —</p>
+          <button type="button" id="conv-btn-enviar-hc-dosis" class="boton-secundario boton-enviar-dosis" disabled>Enviar hidratos de carbono a Dosis</button>
+          <p class="separador-conversor">Grasas / Proteínas <small>(independiente de los hidratos)</small></p>
+
+          <div class="acumulador-nutriente">
+            <p class="acumulador-titulo">Grasas</p>
+            <div class="campo campo-opcional">
+              <label for="conv-grasa-100g">Grasas (g):</label>
+              <input type="number" id="conv-grasa-100g" min="0" step="0.1" placeholder="por cada 100g (opcional)">
+            </div>
+            <div class="campo campo-opcional">
+              <label for="conv-grasa-gramos">Gramos:</label>
+              <input type="number" id="conv-grasa-gramos" min="0" step="0.1" placeholder="gramos del alimento">
+            </div>
+            <button type="button" id="conv-grasa-anadir">+ Añadir</button>
+            <small class="ayuda-acumulador">Si dejas "Grasas (g)" vacío, los gramos se suman directamente.</small>
+            <ul id="conv-grasa-lista" class="lista-acumulador"></ul>
+            <p id="conv-grasa-total" class="total-acumulador"></p>
           </div>
-          <p class="resultado-conversor" id="gr-resultado-ugp">UGP: — <small>(Consulta tu UGP con el médico)</small></p>
+
+          <div class="acumulador-nutriente">
+            <p class="acumulador-titulo">Proteínas</p>
+            <div class="campo campo-opcional">
+              <label for="conv-prot-100g">Proteínas (g):</label>
+              <input type="number" id="conv-prot-100g" min="0" step="0.1" placeholder="por cada 100g (opcional)">
+            </div>
+            <div class="campo campo-opcional">
+              <label for="conv-prot-gramos">Gramos:</label>
+              <input type="number" id="conv-prot-gramos" min="0" step="0.1" placeholder="gramos del alimento">
+            </div>
+            <button type="button" id="conv-prot-anadir">+ Añadir</button>
+            <small class="ayuda-acumulador">Si dejas "Proteínas (g)" vacío, los gramos se suman directamente.</small>
+            <ul id="conv-prot-lista" class="lista-acumulador"></ul>
+            <p id="conv-prot-total" class="total-acumulador"></p>
+          </div>
+
+          <p class="resultado-conversor" id="conv-resultado-ugp">UGP: — </p>
+          <button type="button" id="conv-btn-enviar-dosis" class="boton-secundario boton-enviar-dosis" disabled>Enviar grasas/proteínas a Dosis</button>
         </div>
       </section>
 
@@ -242,7 +255,7 @@
     </main>
 
     <footer>
-      <p>© 2025 Mi Insulina — Para ti, <em>bombón</em></p>
+      <p>© 2026 Mi Insulina — Para ti, <em>bombón</em></p>
     </footer>
   </div>
 

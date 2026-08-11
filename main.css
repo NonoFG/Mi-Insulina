@@ -446,15 +446,17 @@ body[data-tema="oscuro"] .opcion-tabla-hc small {
 
 .enviar-conversor-botones {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
+  justify-items: center;
   gap: 8px;
   margin-top: 10px;
 }
 
 .enviar-conversor-botones button {
   margin: 0;
-  padding: 8px 6px;
+  padding: 8px 16px;
   font-size: 0.78em;
+  width: auto;
 }
 
 .enviar-conversor-botones button:disabled {
@@ -522,6 +524,10 @@ body[data-tema="oscuro"] .alimentos-hc-seleccionados li {
   .tab-boton {
     font-size: 0.72em;
     padding: 8px 4px;
+  }
+
+  .acumulador-controles {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -617,7 +623,7 @@ body[data-tema="oscuro"] .modal-contenido {
 /* --- 📑 Pestañas de navegación --- */
 .tabs-selector {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 6px;
   margin-bottom: 20px;
 }
@@ -658,10 +664,148 @@ body[data-tema="oscuro"] .modal-contenido {
   opacity: 0.9;
 }
 
-.equivalencia-nota {
+.separador-conversor {
+  margin: 18px 0 8px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--color-principal);
+  color: var(--color-principal);
+  font-weight: 700;
+  font-size: 0.9em;
+}
+
+.separador-conversor small {
   display: block;
   font-weight: 400;
-  opacity: 0.85;
+  opacity: 0.8;
+  font-size: 0.8em;
+  margin-top: 2px;
+}
+
+.boton-enviar-dosis {
+  margin-top: 4px !important;
+}
+
+.acumulador-nutriente {
+  margin: 4px 0 6px;
+  padding: 10px;
+  border: 1px dashed var(--color-principal);
+  border-radius: 12px;
+}
+
+.acumulador-titulo {
+  margin: 0 0 6px;
+  font-size: 0.85em;
+  font-weight: 700;
+  color: var(--color-principal);
+}
+
+.acumulador-nutriente .campo {
+  margin-bottom: 6px;
+}
+
+.acumulador-nutriente button {
+  margin: 4px 0 0;
+  padding: 8px;
+  font-size: 0.85em;
+}
+
+.ayuda-acumulador {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.75em;
+  color: var(--color-principal);
+  opacity: 0.8;
+}
+
+.acumulador-controles {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.acumulador-controles input,
+.acumulador-controles button {
+  margin: 0;
+}
+
+.acumulador-controles button {
+  width: auto;
+  padding: 8px 12px;
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+.lista-acumulador {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.lista-acumulador:empty {
+  margin: 0;
+}
+
+.lista-acumulador li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.85em;
+}
+
+.lista-acumulador li button {
+  width: auto;
+  margin: 0;
+  padding: 3px 8px;
+  font-size: 0.85em;
+}
+
+body[data-tema="oscuro"] .lista-acumulador li {
+  border-bottom-color: #444;
+}
+
+.total-acumulador {
+  margin: 8px 0 0;
+  font-weight: 700;
+  font-size: 0.85em;
+  color: var(--color-principal);
+}
+
+.total-acumulador:empty {
+  display: none;
+}
+
+.resumen-nutricion-dosis {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border: 2px solid var(--color-principal);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--color-principal);
+  font-size: 0.9em;
+}
+
+.resumen-nutricion-dosis[hidden] {
+  display: none;
+}
+
+.resumen-nutricion-dosis button {
+  width: auto;
+  margin: 0;
+  padding: 4px 8px;
+  font-size: 0.85em;
+  background: transparent;
+  color: var(--color-principal);
+  border: 1px solid var(--color-principal);
+}
+
+body[data-tema="oscuro"] .resumen-nutricion-dosis {
+  color: var(--color-principal);
 }
 
 .resultado-conversor {
