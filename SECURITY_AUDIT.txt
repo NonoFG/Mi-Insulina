@@ -1,0 +1,96 @@
+Auditoría B04 y notas de evidencia — 2026-10-11
+
+Alcance y seguridad
+-------------------
+- Se hicieron únicamente solicitudes REST GET al proyecto Supabase y búsquedas estáticas en los archivos del cliente. No se enviaron POST, PATCH, PUT ni DELETE; no se modificaron datos, esquema, políticas ni configuración de producción.
+- El único tipo de clave disponible en el cliente es `sb_publishable_…`. La búsqueda de `service_role`, `service-role`, `sb_secret_`, `service_role_key` y `secret_key` en los archivos de la aplicación no encontró coincidencias. Esto solo describe los archivos revisados; no demuestra qué secretos existen en la configuración remota.
+- La URL consultada responde en el perfil `public` de PostgREST. No se suministró una credencial de gestión de Supabase ni una conexión PostgreSQL con acceso de lectura a metadatos de roles/políticas. Por ello no se pudieron consultar `pg_class`, `pg_policies`, privilegios de roles ni la configuración RLS del proyecto.
+
+Hechos observados
+-----------------
+- El 2026-10-11 se hizo un GET a `/rest/v1/alimentos` usando la clave publicable presente en el cliente como `apikey` y `Bearer`, sin sesión/JWT de usuario ni cookies. Una lectura limitada respondió HTTP 200. Una lectura con `Prefer: count=exact` y `Range: 0-1` respondió HTTP 206 y `Content-Range: 0-1/146`.
+- La fila observada contenía `id`, `categoria_id`, `nombre`, `carbs_100g`, `gramos_1_racion_hc`, `medida_habitual`, `raciones_hc_medida`, `ig`, `proteinas_100g`, `grasas_100g` y las relaciones `categorias.nombre` y `detalles_medida`. La lectura confirmó acceso público al catálogo y a esas relaciones; no determinó cómo se concedió (RLS/política/grant).
+- En la fila inicialmente auditada no aparecieron campos de fuente nutricional, fecha de revisión ni estado crudo/cocinado. La integración posterior cargó las 146 filas con `select=*`: los campos devueltos fueron `carbs_100g`, `categoria_id`, `categorias`, `detalles_medida`, `gramos_1_racion_hc`, `grasas_100g`, `id`, `ig`, `medida_habitual`, `nombre`, `proteinas_100g` y `raciones_hc_medida`; ninguna fila incluyó campos de fuente o revisión. Esto describe la representación pública observada, no un inventario administrativo completo. La interfaz muestra ausencias y distingue cero/desconocido; los términos de preparación presentes en el nombre se identifican como tales. La procedencia externa y revisión de cada equivalencia exigidas por B05 siguen pendientes.
+
+No verificado / límites de B04
+------------------------------
+- No se verificó si RLS está habilitado o forzado, qué políticas están activas, ni los grants efectivos de `anon`/`authenticated`.
+- No se probó una escritura anónima: por instrucción no se intentó ninguna mutación, incluso de cero filas. Por tanto, que las escrituras estén denegadas no está verificado.
+- No se identificó mediante acceso administrativo ninguna tabla privada conocida, y no se solicitó una lectura anónima de datos privados. La denegación de lecturas privadas tampoco está verificada. La lectura exitosa del catálogo no demuestra que el cliente esté limitado a ese catálogo.
+- El resultado B04 es una observación segura del acceso público, no una auditoría completa ni una certificación de RLS.
+
+Procedimiento SQL de solo lectura para un administrador autorizado
+------------------------------------------------------------------
+El esquema `public` y los nombres `alimentos`, `categorias` y `detalles_medida` se observaron en respuestas REST. Ejecutar estas consultas desde una conexión administrativa autorizada, en una transacción de solo lectura; no se han ejecutado aquí. Inventariar primero cualquier relación que el propietario clasifique como privada. Sustituir/añadir solo nombres confirmados por el administrador.
+
+```sql
+BEGIN TRANSACTION READ ONLY;
+
+-- Estado RLS de las relaciones del catálogo observadas.
+SELECT n.nspname AS schema_name,
+       c.relname AS table_name,
+       c.relrowsecurity AS rls_enabled,
+       c.relforcerowsecurity AS rls_forced
+FROM pg_class AS c
+JOIN pg_namespace AS n ON n.oid = c.relnamespace
+WHERE n.nspname = 'public'
+  AND c.relname IN ('alimentos', 'categorias', 'detalles_medida')
+  AND c.relkind IN ('r', 'p')
+ORDER BY c.relname;
+
+-- Políticas aplicables y sus condiciones de lectura/escritura.
+SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual, with_check
+FROM pg_policies
+WHERE schemaname = 'public'
+  AND tablename IN ('alimentos', 'categorias', 'detalles_medida')
+ORDER BY tablename, policyname;
+
+-- Grants efectivos que Postgres calcula para los roles públicos.
+SELECT table_name,
+       has_table_privilege('anon', format('public.%I', table_name), 'SELECT') AS anon_select,
+       has_table_privilege('anon', format('public.%I', table_name), 'INSERT') AS anon_insert,
+       has_table_privilege('anon', format('public.%I', table_name), 'UPDATE') AS anon_update,
+       has_table_privilege('anon', format('public.%I', table_name), 'DELETE') AS anon_delete,
+       has_table_privilege('authenticated', format('public.%I', table_name), 'SELECT') AS authenticated_select,
+       has_table_privilege('authenticated', format('public.%I', table_name), 'INSERT') AS authenticated_insert,
+       has_table_privilege('authenticated', format('public.%I', table_name), 'UPDATE') AS authenticated_update,
+       has_table_privilege('authenticated', format('public.%I', table_name), 'DELETE') AS authenticated_delete
+FROM (VALUES ('alimentos'), ('categorias'), ('detalles_medida')) AS t(table_name)
+ORDER BY table_name;
+
+ROLLBACK;
+```
+
+Estas consultas inspeccionan metadatos; no reemplazan una prueba de denegación en runtime. Para verificar lecturas privadas hace falta que el propietario identifique una relación privada concreta y autorice una prueba REST mínima con el cliente público. Una prueba de escritura real queda expresamente fuera de este trabajo porque implicaría una mutación.
+
+Script repetible
+----------------
+`audit-supabase.ps1` hace una única solicitud REST GET limitada a una fila de `alimentos`, imprime HTTP/Content-Range y nunca consulta relaciones privadas ni realiza mutaciones. Uso desde PowerShell:
+
+```powershell
+.\audit-supabase.ps1 -ProjectUrl 'https://ncyzseuzetwgeluptqdl.supabase.co' -PublishableKey '<clave sb_publishable del cliente>'
+```
+
+API de integración y smoke manual final
+---------------------------------------
+- `catalog.js` exporta `loadCatalog({ onStatus })` y resuelve `{ foods, fetchedAt, cached, stale, message, cacheSaved? }`. `cacheSaved` indica si la descarga reciente pudo guardarse para uso offline. `foods` son las filas REST originales, incluidas sus relaciones anidadas. `onStatus` recibe `loading`, `fresh`, `stale` o `error`, con fecha/estado y mensaje cuando corresponde. El recorrido remoto ordena por `nombre.asc,id.asc`, solicita rangos sucesivos y continúa incluso tras páginas parciales; solo guarda una lista no vacía, íntegra y con IDs/nombres válidos. Si la red falla, usa la copia IndexedDB validada y devuelve `cached: true, stale: true`; sin copia válida, muestra error accionable y rechaza.
+- La copia de catálogo se guarda en IndexedDB (`mi-insulina-offline`, almacén `catalogos`, clave `alimentos`) con su `fetchedAt`. El service worker solo precarga/actualiza el shell same-origin usando solicitudes nuevas con credenciales omitidas (también para navegaciones, que pueden llevar credenciales implícitas); ignora solicitudes cross-origin y las que incluyan explícitamente `Authorization`, `apikey`, `x-api-key`, `proxy-authorization` o `cookie`. El catálogo Supabase no se guarda en Cache Storage: su copia offline es explícita en IndexedDB.
+- Smoke del responsable de integración, servido por HTTPS o `localhost`: abrir online e instalar el service worker; comprobar carga completa y hora `fetchedAt`; confirmar que el shell y catálogo funcionan tras activar modo offline y recargar; verificar que la interfaz identifica el catálogo guardado como potencialmente desactualizado y conserva su antigüedad; volver online y confirmar que el evento de reconexión/reintento actualiza el catálogo/fecha sin perder la comida; probar la misma publicación bajo una ruta relativa (subdirectorio) y comprobar que el manifiesto y los iconos de 192/512 px resuelven desde esa ruta. Revisar Cache Storage para el shell same-origin e IndexedDB para el catálogo; no debe aparecer una respuesta Supabase en Cache Storage.
+
+Cambios del escaneo — 2026-10-16
+--------------------------------
+- Se añadió la migración `supabase/migrations/20261016000000_productos_escaneados.sql` y la función `supabase/functions/guardar-producto/index.ts`. No se han aplicado ni desplegado en producción: no se dispone de acceso administrativo/de despliegue. El cliente sigue leyendo el catálogo habitual (146 alimentos observados); el almacenamiento de productos escaneados no está disponible con la configuración remota actual.
+- La tabla nueva contiene únicamente fichas públicas de Open Food Facts, sin fotos ni comidas del usuario. RLS y grants permiten SELECT a `anon`/`authenticated`; solo `service_role` tiene INSERT y SELECT, no UPDATE/DELETE. El código del cliente usa la clave publicable en `apikey`, no como JWT Bearer.
+- La función usa el secreto inyectado `SUPABASE_SECRET_KEYS.default` solo en el servidor. Valida el código y consulta la fuente; no acepta nutrientes/nombres aportados por el cliente. El código de barras es único; conflictos no sobrescriben una ficha existente. La API es pública para importación de productos, no privada por usuario.
+- `APP_ORIGIN` controla CORS y se valida en la función, pero no autentica un cliente HTTP capaz de imitar Origin. Esta limitación no habilita escrituras nutricionales arbitrarias: la única fuente de la importación es Open Food Facts. No se afirma que el mecanismo sea un control de acceso privado ni que garantice la exactitud nutricional de esa base colaborativa.
+- Evidencia aislada: migración ejecutada en PostgreSQL/PGlite; RLS habilitada; lectura anónima autorizada; INSERT anónimo denegado en runtime; privilegios UPDATE/DELETE públicos ausentes. Función real probada contra esa BD con una fuente externa simulada: guardado correcto, deduplicación y rechazo de nutrientes enviados por cliente (HTTP 400). No se hicieron mutaciones remotas para comprobarlo.
+- La foto se procesa localmente con ZXing. Solo se envía el número del código a las consultas de producto y, con acción explícita, al servicio de guardado. Guardar no equivale a aceptar ni añade datos a la comida.
+- La guía de activación y los límites de verificación están en BACKLOG.md. Estas comprobaciones no certifican los permisos del resto de tablas remotas ni cierran B04/B05.
+
+Cámara directa — 2026-10-19
+---------------------------
+- El cliente solicita `getUserMedia` solo tras una acción explícita, con `audio: false` y preferencia por la cámara trasera. El vídeo se decodifica localmente con el mismo ZXing fijado; las consultas y el guardado mantienen su contrato basado en el código, sin enviar vídeo ni fotos.
+- La lectura finaliza las pistas y el decodificador y desconecta el vídeo antes de entregar el código. Cancelar, cambiar de vista/entrada u ocultar/abandonar la página cierran una captura activa. No se reanuda automáticamente.
+- Un permiso del navegador pendiente no se puede retirar mediante AbortSignal: el cliente cancela su sesión y, si el permiso llega después, detiene inmediatamente las pistas recibidas. La concesión antigua no se conecta a una nueva vista previa.
+- Evidencia local: Chromium con un dispositivo de vídeo simulado y ZXing real; pistas `ended` y vista previa desconectada al llegar a revisión. Cancelación con permiso tardío comprobada sin detener una sesión posterior. Fallos/permisos y eventos de visibilidad/desconexión controlados; no se afirma certificación de un teléfono físico.
+- No se han cambiado claves, tablas, políticas, función remota ni permisos de Supabase. Durante el recorrido de aceptación se usaron respuestas nutricionales aisladas y no se enviaron solicitudes de mutación. Este cambio no certifica B04/B05 ni activa el guardado remoto.

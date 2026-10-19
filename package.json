@@ -1,0 +1,8 @@
+{
+  "name": "mi-insulina-raciones",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test calculos.test.mjs catalog.test.mjs product-data.test.mjs"
+  }
+}

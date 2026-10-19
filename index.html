@@ -1,265 +1,338 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mi Insulina, una calculadora de raciones hecha para ti, bombón.">
+  <meta name="theme-color" content="#7EC384">
   <title>Mi Insulina ❤️</title>
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
-
-  <link rel="icon" type="image/png" sizes="192x192" href="./android-chrome-192x192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="./android-chrome-512x512.png">
-
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-
-  <link rel="manifest" href="/site.webmanifest">
-  
-  <link rel="stylesheet" href="main.css">
+  <link rel="manifest" href="./site.webmanifest">
+  <link rel="stylesheet" href="./main.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
   <div class="app-container">
     <header>
       <div class="header-top">
-        <button type="button" id="btnAjustes" class="btn-ajustes" aria-label="Ajustes" title="Ajustes">⚙️</button>
+        <button type="button" id="btnAjustes" class="btn-ajustes" aria-label="Abrir ajustes" title="Ajustes">⚙️</button>
       </div>
-      <h1>Calculadora de insulina para <em>mi novia</em> ✨✨</h1>
+      <h1>Calculadora de raciones para <em>mi novia</em> ✨✨</h1>
     </header>
 
+    <nav class="navegacion-app" aria-label="Secciones de la aplicación">
+      <a href="#comida" aria-current="page">Gramos → Raciones</a>
+      <a href="#manual">Añadir manualmente</a>
+      <a href="#escaner">Escanear producto</a>
+    </nav>
+
     <div id="modalAjustes" class="modal-overlay" hidden>
-      <div class="modal-contenido">
-        <h2>Ajustes</h2>
+      <section class="modal-contenido" role="dialog" aria-modal="true" aria-labelledby="titulo-ajustes" tabindex="-1">
+        <h2 id="titulo-ajustes">Ajustes</h2>
         <div class="campo">
-          <label for="gramosPorRacionInput">1 Ración =</label>
-          <input type="number" id="gramosPorRacionInput" min="1" step="1" value="10">
+          <label for="gramosPorRacionInput">Gramos HC por ración:</label>
+          <input type="number" id="gramosPorRacionInput" min="0.1" step="0.1" value="10" aria-describedby="ayuda-equivalencia error-equivalencia">
+          <small class="error-text" id="error-equivalencia"></small>
         </div>
-        <small class="ayuda-ajustes">Gramos de hidratos de carbono que equivalen a 1 ración. Se usa en los conversores de raciones y gramos.</small>
+        <small class="ayuda-ajustes" id="ayuda-equivalencia">Esta equivalencia se usa en toda la comida. Los gramos HC ya guardados no cambian al modificarla.</small>
 
-        <h3 class="ajustes-subtitulo">Cálculo de UGP</h3>
+        <h3 class="ajustes-subtitulo">Cálculo informativo de UGP</h3>
         <div class="campo">
-          <label for="kcalProteinaInput">Kcal por g proteína:</label>
-          <input type="number" id="kcalProteinaInput" min="0" step="0.1" value="4">
+          <label for="kcalProteinaInput">Kcal por gramo de proteína:</label>
+          <input type="number" id="kcalProteinaInput" min="0.1" step="0.1" value="4" aria-describedby="error-kcal-proteina">
+          <small class="error-text" id="error-kcal-proteina"></small>
         </div>
         <div class="campo">
-          <label for="kcalGrasaInput">Kcal por g grasa:</label>
-          <input type="number" id="kcalGrasaInput" min="0" step="0.1" value="9">
+          <label for="kcalGrasaInput">Kcal por gramo de grasa:</label>
+          <input type="number" id="kcalGrasaInput" min="0.1" step="0.1" value="9" aria-describedby="error-kcal-grasa">
+          <small class="error-text" id="error-kcal-grasa"></small>
         </div>
         <div class="campo">
-          <label for="kcalPorUgpInput">Kcal por 1 UGP:</label>
-          <input type="number" id="kcalPorUgpInput" min="1" step="1" value="150">
+          <label for="kcalPorUgpInput">Kcal por UGP:</label>
+          <input type="number" id="kcalPorUgpInput" min="0.1" step="0.1" value="150" aria-describedby="error-kcal-ugp">
+          <small class="error-text" id="error-kcal-ugp"></small>
         </div>
-        <small class="ayuda-ajustes">Valores por defecto según tu tabla: proteína 4 kcal/g, grasa 9 kcal/g, 1 UGP = 150 kcal.</small>
-
+        <small class="ayuda-ajustes">Valores iniciales: 4 kcal/g de proteína, 9 kcal/g de grasa y 150 kcal/UGP. No es una recomendación de dosis.</small>
+        <fieldset class="tema-selector">
+          <legend>Tema de la aplicación</legend>
+          <label class="tema-opcion"><input type="radio" name="tema" value="automatico"><span>Automático</span></label>
+          <label class="tema-opcion"><input type="radio" name="tema" value="claro"><span>Claro</span></label>
+          <label class="tema-opcion"><input type="radio" name="tema" value="oscuro"><span>Oscuro</span></label>
+        </fieldset>
         <div class="modal-botones">
           <button type="button" id="cerrarAjustes" class="boton-secundario">Cancelar</button>
-          <button type="button" id="guardarAjustes">Guardar</button>
+          <button type="button" id="guardarAjustes">Guardar ajustes</button>
         </div>
-      </div>
+      </section>
     </div>
 
-    <main>
-      <nav class="tabs-selector" role="tablist">
-        <button type="button" class="tab-boton activo" data-tab="dosis" role="tab" aria-selected="true">Dosis</button>
-        <button type="button" class="tab-boton" data-tab="gramos-raciones" role="tab" aria-selected="false">Gramos → Raciones</button>
-      </nav>
-
-      <section class="tab-panel" id="panel-dosis" role="tabpanel">
-        <form id="dosisForm" novalidate>
-        <div class="campo comida-selector">
-          <label>¿Comida?</label>
-          <div class="selector-opciones">
-            <label class="comida-opcion">
-              <input type="radio" name="comida" value="1.75" data-comida-nombre="desayuno" checked>
-              <span>Desayuno</span>
-            </label>
-            <label class="comida-opcion">
-              <input type="radio" name="comida" value="1.75" data-comida-nombre="comida">
-              <span>Comida</span>
-            </label>
-            <label class="comida-opcion">
-              <input type="radio" name="comida" value="2" data-comida-nombre="merienda">
-              <span>Merienda</span>
-            </label>
-            <label class="comida-opcion">
-              <input type="radio" name="comida" value="1.25" data-comida-nombre="cena">
-              <span>Cena</span>
-            </label>
-          </div>
-        </div>
-        <div class="campo comida-confort">
-          <label for="comida-confort">Comida Confort:</label>
-          <select id="comida-confort" name="comida-confort" class="selected">
-            <option value="not-this-time">Not this time 😢</option>
-            <option value="gyozas">Gyozas (230g)</option>
-            <option value="patatas-de-lux">Patatas de lux (375g (mitad de la bolsa))</option>
-            <option value="ensalada-cesar">Ensalada cesar (210g)</option>
-          </select>
-        </div>
-
-        <div class="campo comida-tabla-hc">
-          <label for="alimento-tabla-hc">Alimentos HC:</label>
-          <div class="alimentos-hc-panel">
+    <main class="distribucion-app">
+      <section id="comida" class="comida-card" aria-labelledby="titulo-comida">
+        <h2 id="titulo-comida" tabindex="-1">Gramos → Raciones</h2>
+        <div class="comida-tabla-hc">
+          <section class="alimentos-hc-panel" aria-labelledby="titulo-alimentos-hc">
+            <h3 id="titulo-alimentos-hc">Alimentos HC</h3>
             <div class="alimentos-hc-controles">
-              <div class="autocomplete-tabla-hc">
-                <input type="search" id="alimento-tabla-hc" autocomplete="off"
-                  placeholder="Buscar alimento">
-                <div id="alimentos-tabla-hc-list" class="opciones-tabla-hc" role="listbox"></div>
+              <div class="campo-busqueda-alimento">
+                <label for="alimento-tabla-hc">Buscar alimento:</label>
+                <div class="autocomplete-tabla-hc">
+                  <input type="search" id="alimento-tabla-hc" autocomplete="off" role="combobox"
+                    aria-autocomplete="list" aria-expanded="false" aria-controls="alimentos-tabla-hc-list"
+                    aria-describedby="info-alimento estado-catalogo" placeholder="Ej.: arroz o manzana">
+                  <div id="alimentos-tabla-hc-list" class="opciones-tabla-hc" role="listbox" aria-label="Resultados de alimentos"></div>
+                </div>
               </div>
-              <input type="number" id="gramos-tabla-hc" min="0" step="1" placeholder="Gramos">
-              <button type="button" id="agregar-alimento-tabla-hc">Anadir</button>
+              <div class="campo-cantidad-alimento">
+                <label for="gramos-tabla-hc">Cantidad consumida (g):</label>
+                <input type="number" id="gramos-tabla-hc" min="0" step="0.1" placeholder="Gramos" aria-describedby="error-gramos-alimento">
+                <small class="error-text" id="error-gramos-alimento"></small>
+              </div>
             </div>
-            <small id="estado-tabla-hc" class="ayuda-tabla-hc"></small>
+            <div class="alimentos-hc-acciones">
+              <button type="button" id="agregar-alimento-tabla-hc">Añadir a la comida</button>
+              <button type="button" id="favorito-actual" class="boton-secundario" disabled>Añadir a favoritos</button>
+            </div>
+            <p id="info-alimento" class="info-alimento" aria-live="polite">Elige un alimento para consultar sus datos nutricionales y su procedencia.</p>
+            <p id="estado-catalogo" class="estado-catalogo" role="status" aria-live="polite">Cargando catálogo…</p>
+          </section>
+
+          <section class="favoritos-panel" aria-labelledby="titulo-favoritos">
+            <h3 id="titulo-favoritos">Tus alimentos favoritos</h3>
+            <ul id="lista-favoritos" class="lista-favoritos"></ul>
+            <p id="estado-favoritos" class="estado-panel" role="status" aria-live="polite"></p>
+          </section>
+
+          <section class="lista-comida-panel" aria-labelledby="titulo-lista-comida">
+            <div class="cabecera-lista-comida">
+              <h3 id="titulo-lista-comida" class="subtitulo-lista-comida">Alimentos de esta comida</h3>
+              <div class="acciones-comida">
+                <button type="button" id="reiniciar-comida" class="boton-secundario">Reiniciar comida</button>
+              </div>
+            </div>
             <ul id="alimentos-tabla-hc-seleccionados" class="alimentos-hc-seleccionados"></ul>
-            <p id="resumen-tabla-hc" class="resumen-tabla-hc">0 raciones anadidas</p>
-            <p id="resumen-totales-tabla-hc" class="resumen-totales-tabla-hc"></p>
-            <div class="enviar-conversor-botones">
-              <button type="button" id="btn-enviar-gramos-raciones" class="boton-secundario boton-enviar-dosis" disabled>Usar en Gramos → Raciones</button>
-            </div>
-          </div>
+          </section>
         </div>
 
+        <section class="plantillas-card" aria-labelledby="titulo-plantillas">
+          <h3 id="titulo-plantillas">Tus comidas guardadas</h3>
+          <div class="plantillas-controles">
+            <div class="plantilla-guardar">
+              <div class="campo">
+                <label for="nombre-plantilla">Nombre de la comida:</label>
+                <input type="text" id="nombre-plantilla" maxlength="60" placeholder="Ej.: Desayuno habitual" aria-describedby="error-plantilla">
+                <small class="error-text" id="error-plantilla"></small>
+              </div>
+              <button type="button" id="guardar-plantilla">Guardar plantilla</button>
+            </div>
+            <div class="plantilla-recuperar">
+              <div class="campo">
+                <label for="selector-plantilla">Plantilla guardada:</label>
+                <select id="selector-plantilla">
+                  <option value="">Elige una comida guardada</option>
+                </select>
+                <small class="error-text" id="error-selector-plantilla"></small>
+              </div>
+              <div class="plantilla-botones">
+                <button type="button" id="cargar-plantilla" class="boton-secundario">Usar copia editable</button>
+                <button type="button" id="eliminar-plantilla" class="boton-secundario">Eliminar plantilla</button>
+              </div>
+            </div>
+          </div>
+          <p id="estado-plantilla" class="estado-panel" role="status" aria-live="polite"></p>
+        </section>
+      </section>
+
+
+      <section id="manual" class="manuales-card" aria-labelledby="titulo-manual" hidden>
+        <h2 id="titulo-manual" tabindex="-1">Añadir manualmente</h2>
+        <p class="ayuda-panel">Introduce los datos por 100 g o las cantidades exactas. Todo lo que añadas se refleja en el resumen global al final de cada apartado. Aquí también puedes consultar el cálculo informativo de UGP y añadir varios datos seguidos.</p>
+        <div class="entradas-manuales">
+        <section class="nutriente-manual hidratos-manuales" aria-labelledby="titulo-hidratos-manuales">
+          <h3 id="titulo-hidratos-manuales">Añadir hidratos manualmente</h3>
+          <div class="campo">
+            <label for="hc-100g">Hidratos (g por 100 g):</label>
+            <input type="number" id="hc-100g" min="0" step="0.1" required aria-describedby="error-hc-100g">
+            <small class="error-text" id="error-hc-100g"></small>
+          </div>
+          <div class="campo">
+            <label for="hc-gramos">Cantidad de alimento (g):</label>
+            <input type="number" id="hc-gramos" min="0" step="0.1" required placeholder="Gramos del alimento" aria-describedby="error-hc-gramos">
+            <small class="error-text" id="error-hc-gramos"></small>
+          </div>
+          <button type="button" id="hc-anadir">Añadir hidratos a la comida</button>
+          <section class="entrada-exacta" aria-labelledby="titulo-hc-exactos">
+            <h4 id="titulo-hc-exactos">Añadir hidratos exactos</h4>
+            <p class="ayuda-campo" id="ayuda-hc-exactos">Si conoces los hidratos totales de lo que vas a tomar (por ejemplo, un café de una cadena), introdúcelos aquí. No necesitas el peso ni el valor por 100 g. Se suman a la comida.</p>
+            <form id="form-hc-exactos" novalidate>
+              <div class="campo">
+                <label for="hc-exactos">Hidratos totales (g HC):</label>
+                <input type="number" id="hc-exactos" min="0" step="any" inputmode="decimal" placeholder="Ej.: 18,5" aria-describedby="ayuda-hc-exactos error-hc-exactos">
+                <small class="error-text" id="error-hc-exactos"></small>
+              </div>
+              <button type="submit">Añadir hidratos exactos a la comida</button>
+            </form>
+          </section>
+          <p id="estado-hc-manual" class="estado-panel" role="status" aria-live="polite"></p>
+        </section>
+        <div class="nutriente-manual" data-nutriente="grasa">
+          <h3>Grasas</h3>
+          <div class="campo">
+            <label for="grasa-100g">Grasas (g por 100 g):</label>
+            <input type="number" id="grasa-100g" min="0" step="0.1" required aria-describedby="error-grasa-100g">
+            <small class="error-text" id="error-grasa-100g"></small>
+          </div>
+          <div class="campo">
+            <label for="grasa-gramos">Cantidad de alimento (g):</label>
+            <input type="number" id="grasa-gramos" min="0" step="0.1" required placeholder="Gramos del alimento" aria-describedby="error-grasa-gramos">
+            <small class="error-text" id="error-grasa-gramos"></small>
+          </div>
+          <button type="button" id="grasa-anadir">Añadir grasas</button>
+          <section class="entrada-exacta" aria-labelledby="titulo-grasa-exactos">
+            <h4 id="titulo-grasa-exactos">Añadir grasas exactas</h4>
+            <p class="ayuda-campo" id="ayuda-grasa-exactos">Introduce los gramos de grasa totales de lo que vas a tomar, sin peso ni valor por 100 g. Se suman al cálculo de UGP.</p>
+            <form id="form-grasa-exactos" novalidate>
+              <div class="campo">
+                <label for="grasa-exactos">Grasas totales (g):</label>
+                <input type="number" id="grasa-exactos" min="0" step="any" inputmode="decimal" placeholder="Ej.: 6,2" aria-describedby="ayuda-grasa-exactos error-grasa-exactos">
+                <small class="error-text" id="error-grasa-exactos"></small>
+              </div>
+              <button type="submit">Añadir grasas exactas</button>
+            </form>
+          </section>
+          <ul id="grasa-lista" class="lista-acumulador"></ul>
+          <p id="grasa-total" class="total-acumulador"></p>
+        </div>
+        <div class="nutriente-manual" data-nutriente="proteina">
+          <h3>Proteínas</h3>
+          <div class="campo">
+            <label for="proteina-100g">Proteínas (g por 100 g):</label>
+            <input type="number" id="proteina-100g" min="0" step="0.1" required aria-describedby="error-proteina-100g">
+            <small class="error-text" id="error-proteina-100g"></small>
+          </div>
+          <div class="campo">
+            <label for="proteina-gramos">Cantidad de alimento (g):</label>
+            <input type="number" id="proteina-gramos" min="0" step="0.1" required placeholder="Gramos del alimento" aria-describedby="error-proteina-gramos">
+            <small class="error-text" id="error-proteina-gramos"></small>
+          </div>
+          <button type="button" id="proteina-anadir">Añadir proteínas</button>
+          <section class="entrada-exacta" aria-labelledby="titulo-proteina-exactos">
+            <h4 id="titulo-proteina-exactos">Añadir proteínas exactas</h4>
+            <p class="ayuda-campo" id="ayuda-proteina-exactos">Introduce los gramos de proteína totales de lo que vas a tomar, sin peso ni valor por 100 g. Se suman al cálculo de UGP.</p>
+            <form id="form-proteina-exactos" novalidate>
+              <div class="campo">
+                <label for="proteina-exactos">Proteínas totales (g):</label>
+                <input type="number" id="proteina-exactos" min="0" step="any" inputmode="decimal" placeholder="Ej.: 4,8" aria-describedby="ayuda-proteina-exactos error-proteina-exactos">
+                <small class="error-text" id="error-proteina-exactos"></small>
+              </div>
+              <button type="submit">Añadir proteínas exactas</button>
+            </form>
+          </section>
+          <ul id="proteina-lista" class="lista-acumulador"></ul>
+          <p id="proteina-total" class="total-acumulador"></p>
+        </div>
+        </div>
         <div class="campo raciones-extra">
           <label for="raciones">Raciones extra:</label>
           <div class="raciones-extra-panel">
-            <input type="number" id="raciones" name="raciones" min="0" step="0.1"
-              placeholder="0 si no necesitas sumar nada"
-              oninput="this.setCustomValidity('')">
-            <ul class="tutorial-raciones">
-              <li>Usa este campo solo para raciones que no esten en comida confort ni en alimentos.</li>
-              <li>Si añades alimentos por defecto, sus raciones ya se suman solas.</li>
-              <li>Dejalo vacio o en 0 cuando no quieras sumar nada manual.</li>
-            </ul>
+            <input type="number" id="raciones" min="0" step="0.1" placeholder="0 si no necesitas sumar nada" aria-describedby="ayuda-raciones error-raciones">
+            <small class="ayuda-campo" id="ayuda-raciones">La cantidad se interpreta con la equivalencia actual y se guarda como gramos HC. Al cambiar los gramos HC por ración, se conserva esta cantidad de HC. Vacío y 0 añaden 0 g HC.</small>
             <small class="error-text" id="error-raciones"></small>
-            <p id="resumen-raciones-total" class="resumen-raciones-total">Total comida: 0 raciones</p>
           </div>
         </div>
-
-        <div class="campo">
-          <label for="glucosa">Glucosa actual (mg/dL):</label>
-          <input type="number" id="glucosa" name="glucosa" placeholder=" " required
-            oninvalid="this.setCustomValidity('Se te ha pasado meter la glucosa actual 💧😅')"
-            oninput="this.setCustomValidity('')">
-          <small class="error-text" id="error-glucosa"></small>
-        </div>
-
-
-        <div class="campo">
-          <label for="relacion">Relación I/C:</label>
-          <input type="number" id="relacion" name="relacion" placeholder=" " required
-            oninvalid="this.setCustomValidity('Se te ha pasado meter la relación I/C 🍬😅')"
-            oninput="this.setCustomValidity('')">
-          <small class="error-text" id="error-relacion"></small>
-        </div>
-
-        <div class="campo">
-          <label for="correccion">Factor de corrección:</label>
-          <input type="number" id="correccion" name="correccion" placeholder=" " value="40" required
-            oninvalid="this.setCustomValidity('Se te ha pasado meter el factor de corrección 💉😅')"
-            oninput="this.setCustomValidity('')">
-          <small class="error-text" id="error-correccion"></small>
-        </div>
-
-        <div class="campo">
-          <label for="objetivo">Glucosa objetivo:</label>
-          <input type="number" id="objetivo" name="objetivo" placeholder=" " value="140" required
-            oninvalid="this.setCustomValidity('Se te ha pasado meter la glucosa objetivo 🎯😅')"
-            oninput="this.setCustomValidity('')">
-          <small class="error-text" id="error-objetivo"></small>
-        </div>
-
-        <button type="submit">Calcular dosis</button>
-        </form>
-
-        <div id="resultado" class="resultado"></div>
-        <div id="historial" class="historial"></div>
-
-        <div id="resumen-nutricion-dosis" class="resumen-nutricion-dosis" hidden>
-          <span id="resumen-nutricion-dosis-texto"></span>
-          <button type="button" id="btn-quitar-nutricion-dosis" aria-label="Quitar">✕</button>
-        </div>
+      <section class="ugp-card" aria-labelledby="titulo-ugp">
+        <h2 id="titulo-ugp">Cálculo informativo de UGP</h2>
+        <p class="ayuda-panel">Suma las grasas y proteínas manuales y las de productos escaneados que hayas aceptado en la comida. No calcula ni recomienda dosis de insulina.</p>
+        <p id="ugp-productos" class="ayuda-campo" aria-live="polite"></p>
+        <p id="resultado-ugp" class="resultado-ugp" aria-live="polite">UGP: —</p>
+      </section>
       </section>
 
-      <section class="tab-panel" id="panel-gramos-raciones" role="tabpanel" hidden>
-        <div class="conversor-card" id="conversorGramosRaciones">
-          <h2>Gramos → Raciones</h2>
-
-          <div class="acumulador-nutriente">
-            <p class="acumulador-titulo">Hidratos de carbono</p>
-            <div class="campo campo-opcional">
-              <label for="conv-hc-100g">Hidratos de carbono (g):</label>
-              <input type="number" id="conv-hc-100g" min="0" step="0.1" placeholder="por cada 100g (opcional)">
+        <section id="escaner" class="escaner-producto" aria-labelledby="titulo-escaner" hidden>
+          <h2 id="titulo-escaner" tabindex="-1">Escanear un producto</h2>
+          <p id="ayuda-camara" class="ayuda-campo">Enfoca un código de barras con la cámara. El vídeo se procesa en este dispositivo y solo se consulta el código; no se añade nada a la comida hasta que lo aceptes.</p>
+          <button type="button" id="activar-camara" aria-controls="panel-camara" aria-expanded="false" aria-describedby="ayuda-camara">Activar cámara</button>
+          <div id="panel-camara" class="panel-camara" role="region" aria-label="Vista previa de la cámara" aria-live="polite" hidden>
+            <video id="video-producto" autoplay muted playsinline aria-label="Vista previa en directo para leer un código de barras"></video>
+            <p id="estado-camara" class="estado-panel" role="status" aria-live="polite"></p>
+            <div class="acciones-camara">
+              <button type="button" id="detener-camara" class="boton-secundario">Detener cámara</button>
             </div>
-            <div class="campo campo-opcional">
-              <label for="conv-hc-gramos">Gramos:</label>
-              <input type="number" id="conv-hc-gramos" min="0" step="0.1" placeholder="gramos del alimento">
-            </div>
-            <button type="button" id="conv-hc-anadir">+ Añadir</button>
-            <small class="ayuda-acumulador">Si dejas "Hidratos de carbono (g)" vacío, los gramos se suman directamente.</small>
-            <ul id="conv-hc-lista" class="lista-acumulador"></ul>
-            <p id="conv-hc-total" class="total-acumulador"></p>
           </div>
-          <p class="resultado-conversor" id="conv-resultado-raciones">Raciones: —</p>
-          <button type="button" id="conv-btn-enviar-hc-dosis" class="boton-secundario boton-enviar-dosis" disabled>Enviar hidratos de carbono a Dosis</button>
-          <p class="separador-conversor">Grasas / Proteínas <small>(independiente de los hidratos)</small></p>
-
-          <div class="acumulador-nutriente">
-            <p class="acumulador-titulo">Grasas</p>
-            <div class="campo campo-opcional">
-              <label for="conv-grasa-100g">Grasas (g):</label>
-              <input type="number" id="conv-grasa-100g" min="0" step="0.1" placeholder="por cada 100g (opcional)">
+          <p class="ayuda-campo" id="ayuda-foto-producto">También puedes hacer una foto o elegir una imagen. Toma el código de cerca y con buena luz; la foto se lee en tu dispositivo, sin subirla.</p>
+          <label for="foto-producto">Hacer una foto o elegir una imagen:</label>
+          <input type="file" id="foto-producto" accept="image/*" capture="environment" aria-describedby="ayuda-foto-producto">
+          <form id="form-codigo-producto" novalidate>
+            <div class="campo">
+              <label for="codigo-producto">Código de barras:</label>
+              <input type="text" id="codigo-producto" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="También puedes escribirlo" aria-describedby="error-codigo-producto">
+              <small class="error-text" id="error-codigo-producto"></small>
             </div>
-            <div class="campo campo-opcional">
-              <label for="conv-grasa-gramos">Gramos:</label>
-              <input type="number" id="conv-grasa-gramos" min="0" step="0.1" placeholder="gramos del alimento">
-            </div>
-            <button type="button" id="conv-grasa-anadir">+ Añadir</button>
-            <small class="ayuda-acumulador">Si dejas "Grasas (g)" vacío, los gramos se suman directamente.</small>
-            <ul id="conv-grasa-lista" class="lista-acumulador"></ul>
-            <p id="conv-grasa-total" class="total-acumulador"></p>
+            <button type="submit">Consultar producto</button>
+          </form>
+          <button type="button" id="cancelar-consulta-producto" class="boton-secundario" hidden>Cancelar consulta</button>
+          <p id="estado-escaner" class="estado-panel" role="status" aria-live="polite"></p>
+          <div id="revision-producto" hidden>
+            <h3 tabindex="-1" id="titulo-revision-producto">Revisa antes de añadir</h3>
+            <p id="origen-producto" class="ayuda-campo"></p>
+            <a id="enlace-producto" target="_blank" rel="noopener noreferrer">Ver ficha en Open Food Facts</a>
+            <p class="ayuda-campo">Base colaborativa: comprueba la etiqueta del envase. Los datos pueden ser incompletos o estar desactualizados.</p>
+            <form id="form-aceptar-producto" novalidate>
+              <div class="campo">
+                <label for="producto-nombre">Nombre:</label>
+                <input type="text" id="producto-nombre" maxlength="250" aria-describedby="error-producto-nombre">
+                <small class="error-text" id="error-producto-nombre"></small>
+              </div>
+              <p id="producto-base" class="ayuda-campo"></p>
+              <div class="campo">
+                <label for="producto-hc">Hidratos (g):</label>
+                <input type="number" id="producto-hc" min="0" max="100" step="any" inputmode="decimal" aria-describedby="producto-base error-producto-hc">
+                <small class="error-text" id="error-producto-hc"></small>
+              </div>
+              <div class="campo">
+                <label for="producto-grasas">Grasas (g):</label>
+                <input type="number" id="producto-grasas" min="0" max="100" step="any" inputmode="decimal" aria-describedby="producto-base ayuda-producto-desconocidos error-producto-grasas">
+                <small class="error-text" id="error-producto-grasas"></small>
+              </div>
+              <div class="campo">
+                <label for="producto-proteinas">Proteínas (g):</label>
+                <input type="number" id="producto-proteinas" min="0" max="100" step="any" inputmode="decimal" aria-describedby="producto-base ayuda-producto-desconocidos error-producto-proteinas">
+                <small class="error-text" id="error-producto-proteinas"></small>
+              </div>
+              <p id="ayuda-producto-desconocidos" class="ayuda-campo">Vacío significa desconocido, no cero. Necesitas hidratos y cantidad para añadir; puedes completar los datos de la etiqueta. Si faltan grasas o proteínas, no se mostrará un total UGP completo.</p>
+              <div class="campo">
+                <label for="producto-cantidad" id="etiqueta-producto-cantidad">Cantidad a consumir (g):</label>
+                <input type="number" id="producto-cantidad" min="0" step="any" inputmode="decimal" aria-describedby="ayuda-producto-cantidad error-producto-cantidad">
+                <small class="error-text" id="error-producto-cantidad"></small>
+              </div>
+              <p id="ayuda-producto-cantidad" class="ayuda-campo"></p>
+              <p id="totales-producto" class="totales-producto" aria-live="polite"></p>
+              <button type="submit" id="aceptar-producto">Aceptar y añadir a la comida y UGP</button>
+            </form>
+            <button type="button" id="descartar-producto" class="boton-secundario">Descartar sin añadir</button>
+            <button type="button" id="guardar-producto" class="boton-secundario">Guardar ficha original en la BD</button>
+            <p class="ayuda-campo">Guardar no añade nada a la comida. Se guarda la ficha original de Open Food Facts; los cambios de esta revisión solo se aplican a lo que vas a consumir.</p>
+            <p id="estado-guardar-producto" class="estado-panel" role="status" aria-live="polite"></p>
           </div>
+          <p id="estado-productos-guardados" class="estado-panel" role="status" aria-live="polite"></p>
+          <small class="ayuda-campo">Datos de <a href="https://world.openfoodfacts.org/" target="_blank" rel="noopener noreferrer">Open Food Facts</a>, bajo <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener noreferrer">licencia ODbL</a>.</small>
+        </section>
 
-          <div class="acumulador-nutriente">
-            <p class="acumulador-titulo">Proteínas</p>
-            <div class="campo campo-opcional">
-              <label for="conv-prot-100g">Proteínas (g):</label>
-              <input type="number" id="conv-prot-100g" min="0" step="0.1" placeholder="por cada 100g (opcional)">
-            </div>
-            <div class="campo campo-opcional">
-              <label for="conv-prot-gramos">Gramos:</label>
-              <input type="number" id="conv-prot-gramos" min="0" step="0.1" placeholder="gramos del alimento">
-            </div>
-            <button type="button" id="conv-prot-anadir">+ Añadir</button>
-            <small class="ayuda-acumulador">Si dejas "Proteínas (g)" vacío, los gramos se suman directamente.</small>
-            <ul id="conv-prot-lista" class="lista-acumulador"></ul>
-            <p id="conv-prot-total" class="total-acumulador"></p>
-          </div>
-
-          <p class="resultado-conversor" id="conv-resultado-ugp">UGP: — </p>
-          <button type="button" id="conv-btn-enviar-dosis" class="boton-secundario boton-enviar-dosis" disabled>Enviar grasas/proteínas a Dosis</button>
-        </div>
-      </section>
-
-      <div class="tema-selector">
-        <label class="tema-opcion">
-          <input type="radio" name="tema" value="claro" checked>
-          <span>Claro</span>
-        </label>
-        <label class="tema-opcion">
-          <input type="radio" name="tema" value="oscuro">
-          <span>Oscuro</span>
-        </label>
-      </div>
+        <section class="resumen-comida" aria-labelledby="titulo-resumen">
+          <h3 id="titulo-resumen">Tu comida, de un vistazo</h3>
+          <ul id="desglose-comida" class="desglose-comida" aria-live="polite"></ul>
+          <p id="total-comida" class="total-comida" aria-live="polite">Total: 0 g HC · 0 raciones</p>
+          <p id="resumen-macros" class="resumen-macros"></p>
+          <p id="estado-borrador" class="estado-panel" role="status" aria-live="polite"></p>
+        </section>
     </main>
 
     <footer>
       <p>© 2026 Mi Insulina — Para ti, <em>bombón</em></p>
     </footer>
   </div>
-
-  <script src="dosis.js"></script>
+  <script type="module" src="./dosis.js"></script>
 </body>
-
 </html>

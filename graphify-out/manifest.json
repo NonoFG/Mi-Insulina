@@ -1,0 +1,170 @@
+{
+  "alimentos H.json": {
+    "mtime": 1777921672.571551,
+    "seen": 1792435295.9187098,
+    "ast_hash": "79b40465374dbee035624b48158f8065",
+    "semantic_hash": "79b40465374dbee035624b48158f8065"
+  },
+  "audit-supabase.ps1": {
+    "mtime": 1791712434.1898298,
+    "seen": 1792435295.9187098,
+    "ast_hash": "aad504be5ba3166aaa8a11b9fb67553c",
+    "semantic_hash": "aad504be5ba3166aaa8a11b9fb67553c"
+  },
+  "barcode.js": {
+    "mtime": 1792146270.3295014,
+    "seen": 1792435295.9187098,
+    "ast_hash": "fafba87b3d3b0d77ff750d8b7e9115bd",
+    "semantic_hash": "fafba87b3d3b0d77ff750d8b7e9115bd"
+  },
+  "calculos.js": {
+    "mtime": 1792164818.3282764,
+    "seen": 1792435295.9187098,
+    "ast_hash": "c70e769901beda3550ed44749fe7f796",
+    "semantic_hash": "c70e769901beda3550ed44749fe7f796"
+  },
+  "calculos.test.mjs": {
+    "mtime": 1792164818.3658137,
+    "seen": 1792435295.9187098,
+    "ast_hash": "613f849efae140aa5e2b652fe209c289",
+    "semantic_hash": "613f849efae140aa5e2b652fe209c289"
+  },
+  "catalog.js": {
+    "mtime": 1792146476.3693492,
+    "seen": 1792435295.9187098,
+    "ast_hash": "f7842a92efa985113be3c061cf31a8a4",
+    "semantic_hash": "f7842a92efa985113be3c061cf31a8a4"
+  },
+  "catalog.test.mjs": {
+    "mtime": 1791713264.5209756,
+    "seen": 1792435295.9187098,
+    "ast_hash": "1b1f0d5d867a8022dfb9edf143e1020f",
+    "semantic_hash": "1b1f0d5d867a8022dfb9edf143e1020f"
+  },
+  "dosis.js": {
+    "mtime": 1792164818.3423696,
+    "seen": 1792435295.9187098,
+    "ast_hash": "c8a9e72f6b263a08adc4f3d1bfbcfcbb",
+    "semantic_hash": "c8a9e72f6b263a08adc4f3d1bfbcfcbb"
+  },
+  "package.json": {
+    "mtime": 1792146016.8178527,
+    "seen": 1792435295.9187098,
+    "ast_hash": "b34d7586d82aea672248dd9e10fa91d5",
+    "semantic_hash": "b34d7586d82aea672248dd9e10fa91d5"
+  },
+  "product-data.js": {
+    "mtime": 1792146790.409034,
+    "seen": 1792435295.9187098,
+    "ast_hash": "f20f1d76abbfcd5db2f91bc5724d1ec7",
+    "semantic_hash": "f20f1d76abbfcd5db2f91bc5724d1ec7"
+  },
+  "product-data.test.mjs": {
+    "mtime": 1792146790.4262567,
+    "seen": 1792435295.9187098,
+    "ast_hash": "b5dbff2a256fc046ae207b9c5af03a54",
+    "semantic_hash": "b5dbff2a256fc046ae207b9c5af03a54"
+  },
+  "products.js": {
+    "mtime": 1792153560.2587664,
+    "seen": 1792435295.9187098,
+    "ast_hash": "273bd9ff44470129c4482e16ae363e5b",
+    "semantic_hash": "273bd9ff44470129c4482e16ae363e5b"
+  },
+  "scan-product.js": {
+    "mtime": 1792155667.6192863,
+    "seen": 1792435295.9187098,
+    "ast_hash": "415b5e3b073f469920d4bc961ec4f1d7",
+    "semantic_hash": "415b5e3b073f469920d4bc961ec4f1d7"
+  },
+  "supabase-config.js": {
+    "mtime": 1792145868.2678957,
+    "seen": 1792435295.9187098,
+    "ast_hash": "c26be6f730c893b6ee43e8eefb785020",
+    "semantic_hash": "c26be6f730c893b6ee43e8eefb785020"
+  },
+  "supabase/functions/guardar-producto/index.ts": {
+    "mtime": 1792153560.2727475,
+    "seen": 1792435295.9187098,
+    "ast_hash": "112dad693af0d6d210f31a1da2b0e755",
+    "semantic_hash": "112dad693af0d6d210f31a1da2b0e755"
+  },
+  "supabase/migrations/20261016000000_productos_escaneados.sql": {
+    "mtime": 1792146202.178267,
+    "seen": 1792435295.9187098,
+    "ast_hash": "19bd30478c1c041cd3cd3724e1b01aee",
+    "semantic_hash": "19bd30478c1c041cd3cd3724e1b01aee"
+  },
+  "sw.js": {
+    "mtime": 1792433647.545891,
+    "seen": 1792435295.9187098,
+    "ast_hash": "25304a2da5df626fddb51ee27d40c50b",
+    "semantic_hash": "25304a2da5df626fddb51ee27d40c50b"
+  },
+  "vendor/zxing-browser.min.js": {
+    "mtime": 1792145924.3403833,
+    "seen": 1792435295.9187098,
+    "ast_hash": "5d66d86daf6d68a8fbc495f559d70e45",
+    "semantic_hash": "5d66d86daf6d68a8fbc495f559d70e45"
+  },
+  "BACKLOG.md": {
+    "mtime": 1792434231.3300338,
+    "seen": 1792435295.9187098,
+    "ast_hash": "976b9a8d865907e673184f48d9133c90",
+    "semantic_hash": "976b9a8d865907e673184f48d9133c90"
+  },
+  "SECURITY_AUDIT.txt": {
+    "mtime": 1792147190.9096353,
+    "seen": 1792435295.9187098,
+    "ast_hash": "0d7055dff8995fc35cad21947e0b6918",
+    "semantic_hash": "0d7055dff8995fc35cad21947e0b6918"
+  },
+  "index.html": {
+    "mtime": 1792164818.3082583,
+    "seen": 1792435295.9187098,
+    "ast_hash": "04823fc3d68b8227ab2defb7a62301be",
+    "semantic_hash": "04823fc3d68b8227ab2defb7a62301be"
+  },
+  "vendor/ZXING-LIBRARY-LICENSE.txt": {
+    "mtime": 1792146260.9040115,
+    "seen": 1792435295.9187098,
+    "ast_hash": "c0d136eb115307c4b00b55c527952fd5",
+    "semantic_hash": "c0d136eb115307c4b00b55c527952fd5"
+  },
+  "vendor/ZXING-LICENSE.txt": {
+    "mtime": 1792145924.3659022,
+    "seen": 1792435295.9187098,
+    "ast_hash": "4c1940d6e2569b475e79c1e9867c3de8",
+    "semantic_hash": "4c1940d6e2569b475e79c1e9867c3de8"
+  },
+  "android-chrome-192x192.png": {
+    "mtime": 1754485706.0,
+    "seen": 1792435295.9187098,
+    "ast_hash": "c14b010d0e090001f0c41ed7bf8f3c84",
+    "semantic_hash": "c14b010d0e090001f0c41ed7bf8f3c84"
+  },
+  "android-chrome-512x512.png": {
+    "mtime": 1754485706.0,
+    "seen": 1792435295.9187098,
+    "ast_hash": "70226c170c1daa3814e5922030abc405",
+    "semantic_hash": "70226c170c1daa3814e5922030abc405"
+  },
+  "apple-touch-icon.png": {
+    "mtime": 1754485706.0,
+    "seen": 1792435295.9187098,
+    "ast_hash": "cc0ee448d088f7f1efec1e0af297edcf",
+    "semantic_hash": "cc0ee448d088f7f1efec1e0af297edcf"
+  },
+  "favicon-16x16.png": {
+    "mtime": 1754485706.0,
+    "seen": 1792435295.9187098,
+    "ast_hash": "7c706b2560f4f7db77894ec973aa9387",
+    "semantic_hash": "7c706b2560f4f7db77894ec973aa9387"
+  },
+  "favicon-32x32.png": {
+    "mtime": 1754485442.0,
+    "seen": 1792435295.9187098,
+    "ast_hash": "1d424808e8c09ab44f265ff84bde3422",
+    "semantic_hash": "1d424808e8c09ab44f265ff84bde3422"
+  }
+}

@@ -1,0 +1,5 @@
+project_id = "mi-insulina"
+
+[functions.guardar-producto]
+verify_jwt = false
+entrypoint = "./functions/guardar-producto/index.ts"

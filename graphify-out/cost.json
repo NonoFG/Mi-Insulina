@@ -1,0 +1,14 @@
+{
+  "runs": [],
+  "total_input_tokens": 0,
+  "total_output_tokens": 0,
+  "usage_status": "incomplete",
+  "note": "Totals include measured runs only. No semantic usage counts were exposed by the host-agent tools; do not interpret the zero totals as zero consumption.",
+  "unmeasured_runs": [
+    {
+      "date": "2026-10-19",
+      "files": 28,
+      "reason": "Semantic extraction used host-session agents without exposed token-usage metrics. No additional LLM API was called."
+    }
+  ]
+}
