@@ -2,6 +2,7 @@ import { SUPABASE_CONFIG } from "./supabase-config.js";
 import {
   normalizeBarcode,
   normalizeOpenFoodFacts,
+  ProductDataError,
 } from "./product-data.js";
 
 const PRODUCT_TABLE = "productos_escaneados";
@@ -74,10 +75,10 @@ function savedProduct(record, requestedCode = record?.codigo_barras) {
     descripcion_cantidad: typeof record.descripcion_cantidad === "string"
       ? record.descripcion_cantidad
       : "",
-    fuente: "Open Food Facts",
-    fuente_url: typeof record.fuente_url === "string"
-      ? record.fuente_url
-      : `https://world.openfoodfacts.org/product/${code}`,
+    fuente: record.fuente,
+    fuente_url: record.fuente === "Open Food Facts"
+      ? `https://world.openfoodfacts.org/product/${code}`
+      : null,
     consultado_en: typeof record.consultado_en === "string" ? record.consultado_en : null,
     fecha_revision: typeof record.fecha_revision === "string" ? record.fecha_revision : null,
   };
@@ -140,7 +141,7 @@ async function fetchOpenFoodFacts(code, signal) {
   }
 
   if (response.status === 404) {
-    throw new Error("No se encontró este producto en Open Food Facts.");
+    throw new ProductDataError("product_not_found", "No se encontró este producto en Open Food Facts.");
   }
   if (response.status === 429) {
     throw new Error("Open Food Facts ha limitado temporalmente las consultas. Inténtalo más tarde.");
@@ -160,16 +161,23 @@ async function fetchOpenFoodFacts(code, signal) {
 
 export async function lookupProduct(value, { signal } = {}) {
   const code = normalizeBarcode(value);
-  const stored = await readSavedProduct(code, signal);
-  if (stored.product) {
-    return { product: stored.product, saved: true, storageAvailable: true };
+  try {
+    const product = await fetchOpenFoodFacts(code, signal);
+    return { product, saved: false };
+  } catch (error) {
+    if (error?.code !== "product_not_found") throw error;
   }
-
-  const product = await fetchOpenFoodFacts(code, signal);
-  return { product, saved: false, storageAvailable: stored.available };
+  const stored = await readSavedProduct(code, signal);
+  if (!stored.available) {
+    throw new ProductDataError("storage_unavailable", "El producto no está en Open Food Facts, pero no se pudo consultar Supabase. Inténtalo de nuevo antes de darlo de alta.");
+  }
+  if (stored.product) {
+    return { product: stored.product, saved: true };
+  }
+  throw new ProductDataError("product_not_found", "No se encontró este producto en Open Food Facts ni en Supabase.");
 }
 
-export async function saveProduct(value, { signal } = {}) {
+export async function saveProduct(value, { signal, manualProduct } = {}) {
   const code = normalizeBarcode(value);
   const url = supabaseUrl("/functions/v1/guardar-producto");
   const headers = supabaseHeaders();
@@ -183,7 +191,10 @@ export async function saveProduct(value, { signal } = {}) {
     response = await fetch(url, {
       method: "POST",
       headers,
-      body: JSON.stringify({ codigo_barras: code }),
+      body: JSON.stringify({
+        codigo_barras: code,
+        ...(manualProduct === undefined ? {} : { producto_manual: manualProduct }),
+      }),
       signal,
       cache: "no-store",
       credentials: "omit",

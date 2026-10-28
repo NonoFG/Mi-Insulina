@@ -190,3 +190,43 @@ export function normalizeOpenFoodFacts(payload, value) {
     fecha_revision: null,
   };
 }
+
+/** Validate user-entered label data; provenance is assigned here, never by the client. */
+export function normalizeManualProduct(value, barcode) {
+  const code = normalizeBarcode(barcode);
+  const fields = new Set(["nombre", "unidad_cantidad", "carbs_100g", "grasas_100g", "proteinas_100g"]);
+  if (!value || typeof value !== "object" || Array.isArray(value)
+    || Object.keys(value).some((key) => !fields.has(key))) {
+    throw productError("invalid_manual_product", "La ficha manual contiene campos no permitidos.");
+  }
+  const nombre = text(value.nombre);
+  if (!nombre || nombre.length > 250) {
+    throw productError("invalid_manual_product", "Indica un nombre de producto de hasta 250 caracteres.");
+  }
+  if (value.unidad_cantidad !== "g" && value.unidad_cantidad !== "ml") {
+    throw productError("invalid_manual_product", "Indica si los valores de la etiqueta son por 100 g o por 100 ml.");
+  }
+  const nutrients = {};
+  for (const key of ["carbs_100g", "grasas_100g", "proteinas_100g"]) {
+    const number = value[key] ?? null;
+    if (number === null ? key === "carbs_100g"
+      : typeof number !== "number" || !Number.isFinite(number) || number < 0 || number > 100) {
+      throw productError("invalid_manual_product", "Los hidratos son obligatorios y los nutrientes deben estar entre 0 y 100 g. Deja los desconocidos vacíos.");
+    }
+    nutrients[key] = number;
+  }
+  return {
+    id: `barcode:${code}`,
+    codigo_barras: code,
+    nombre,
+    marca: null,
+    ...nutrients,
+    unidad_cantidad: value.unidad_cantidad,
+    cantidad_sugerida: null,
+    descripcion_cantidad: "Indica la cantidad que vas a consumir según la etiqueta.",
+    fuente: "Usuario (etiqueta; sin verificar)",
+    fuente_url: null,
+    consultado_en: new Date().toISOString(),
+    fecha_revision: null,
+  };
+}

@@ -259,6 +259,7 @@
             <p id="estado-camara" class="estado-panel" role="status" aria-live="polite"></p>
             <div class="acciones-camara">
               <button type="button" id="detener-camara" class="boton-secundario">Detener cámara</button>
+              <button type="button" id="escribir-codigo-producto" class="boton-secundario">Escribir el código manualmente</button>
             </div>
           </div>
           <p class="ayuda-campo" id="ayuda-foto-producto">También puedes hacer una foto o elegir una imagen. Toma el código de cerca y con buena luz; la foto se lee en tu dispositivo, sin subirla.</p>
@@ -274,6 +275,10 @@
           </form>
           <button type="button" id="cancelar-consulta-producto" class="boton-secundario" hidden>Cancelar consulta</button>
           <p id="estado-escaner" class="estado-panel" role="status" aria-live="polite"></p>
+          <div id="producto-no-encontrado" hidden>
+            <p class="ayuda-campo">El código no está en Open Food Facts ni en Supabase. Si quieres, introduce los datos de la etiqueta y guarda el producto en Supabase, sin registrarte en Open Food Facts.</p>
+            <button type="button" id="anadir-producto-supabase">Añadir este producto a Supabase</button>
+          </div>
           <div id="revision-producto" hidden>
             <h3 tabindex="-1" id="titulo-revision-producto">Revisa antes de añadir</h3>
             <p id="origen-producto" class="ayuda-campo"></p>
@@ -284,6 +289,13 @@
                 <label for="producto-nombre">Nombre:</label>
                 <input type="text" id="producto-nombre" maxlength="250" aria-describedby="error-producto-nombre">
                 <small class="error-text" id="error-producto-nombre"></small>
+              </div>
+              <div id="campo-producto-unidad" class="campo" hidden>
+                <label for="producto-unidad">Valores de la etiqueta por:</label>
+                <select id="producto-unidad">
+                  <option value="g">100 gramos (g)</option>
+                  <option value="ml">100 mililitros (ml)</option>
+                </select>
               </div>
               <p id="producto-base" class="ayuda-campo"></p>
               <div class="campo">
@@ -313,7 +325,7 @@
             </form>
             <button type="button" id="descartar-producto" class="boton-secundario">Descartar sin añadir</button>
             <button type="button" id="guardar-producto" class="boton-secundario">Guardar ficha original en la BD</button>
-            <p class="ayuda-campo">Guardar no añade nada a la comida. Se guarda la ficha original de Open Food Facts; los cambios de esta revisión solo se aplican a lo que vas a consumir.</p>
+            <p id="ayuda-guardar-producto" class="ayuda-campo">Guardar no añade nada a la comida. Se guarda la ficha original de Open Food Facts; los cambios de esta revisión solo se aplican a lo que vas a consumir.</p>
             <p id="estado-guardar-producto" class="estado-panel" role="status" aria-live="polite"></p>
           </div>
           <p id="estado-productos-guardados" class="estado-panel" role="status" aria-live="polite"></p>

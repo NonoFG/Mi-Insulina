@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test calculos.test.mjs catalog.test.mjs product-data.test.mjs"
+    "test": "node --test calculos.test.mjs catalog.test.mjs product-data.test.mjs products.test.mjs supabase/functions/guardar-producto/index.test.mjs"
   }
 }

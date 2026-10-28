@@ -2,7 +2,7 @@
 
 ## Estado de ejecución
 
-Implementación integrada y verificada en navegador real. **13 elementos completados; B04 y B05 no cumplen todavía toda su aceptación por requisitos externos ausentes.** No se ha desplegado en un servidor remoto ni modificado la base de datos de producción.
+Implementación integrada y verificada en navegador real. **13 elementos completados; B04 y B05 no cumplen todavía toda su aceptación por requisitos externos ausentes.** El 2026-10-28 se aplicaron las dos migraciones de productos y se desplegó `guardar-producto` en Supabase; no se insertaron productos de prueba. El usuario autorizó también publicar los cambios del cliente.
 
 Se mantiene Comida confort, Alimentos HC y Raciones extra en **Gramos → Raciones**. No hay pantalla, cálculo ni botones de dosis de insulina.
 
@@ -45,6 +45,14 @@ Los valores antiguos de confort se conservan como 52,9 / 14,7 / 86,3 g HC, refer
 - El servidor debe entregar `.js` como JavaScript (`application/javascript` o `text/javascript`). El módulo del cliente se publica como `calculos.js` para evitar el MIME `text/plain` observado con `.mjs` en el servidor Python de este equipo.
 - Publicar también `calculos.js`, `catalog.js`, `supabase-config.js`, `product-data.js`, `products.js`, `barcode.js`, `scan-product.js`, `vendor/` con sus licencias, `sw.js`, manifiesto, CSS e iconos. El service worker solo guarda el shell same-origin, no respuestas de Supabase con credenciales. El catálogo habitual se guarda explícitamente en IndexedDB.
 - Favoritos, borrador, plantillas y ajustes son locales al navegador/dispositivo; no se sincronizan con Supabase.
+
+### Escaneo sin lectura y producto no encontrado
+
+- Si pasan 12 segundos con la cámara activa sin leer un código, se muestra un aviso con consejos de enfoque/luz. La búsqueda continúa; no se interpreta como ausencia del producto en la base de datos. «Escribir el código manualmente» detiene la cámara y lleva el foco al campo del código.
+- Se consulta primero Open Food Facts. Solo si confirma que el producto no existe (HTTP 404 o respuesta de ausencia), se busca el código en Supabase. Si tampoco existe allí, se ofrece «Añadir este producto a Supabase», sin alta ni cuenta en Open Food Facts. Un fallo de Supabase no se presenta como ausencia confirmada.
+- El formulario reutiliza la revisión: nombre, unidad por 100 g o 100 ml e hidratos obligatorios; grasas y proteínas opcionales, conservando cero y desconocido. «Guardar producto en Supabase» no requiere cantidad de consumo y no añade nada a la comida. La ficha queda marcada «Usuario (etiqueta; sin verificar)» y no sobrescribe códigos existentes.
+- Verificado en Chromium con PostgreSQL/PGlite y la función real: orden OFF → Supabase, alta persistida, recuperación tras recargar, 250 ml con 4 g HC/100 ml aportan 10 g HC solo tras aceptar; grasa cero y proteína desconocida conservadas. Error de escritura mantiene el formulario y no crea filas. Inserción anónima directa denegada; código repetido conserva una fila. Inspección a 390/1280 px sin desbordamiento. `npm test`: 37 pruebas correctas. Activación remota completada el 2026-10-28 tras autorizar la cuenta con acceso al proyecto; detalles abajo.
+- Caché del shell actualizada a `v18`. Se mantienen los avisos de cámara; no se ha certificado una cámara de teléfono físico.
 
 ## Verificación ejercitada
 
@@ -98,18 +106,19 @@ Los valores antiguos de confort se conservan como 52,9 / 14,7 / 86,3 g HC, refer
 - Las grasas y proteínas de productos confirmados se calculan desde las mismas entradas de comida; no se copian a los acumuladores manuales. Editar cantidad, quitar la entrada o recuperar el borrador mantiene sincronizados HC, macros y UGP. Los alimentos habituales y las entradas manuales anteriores mantienen su comportamiento.
 - Vacío significa desconocido; cero explícito significa cero. HC y cantidad son necesarios para aceptar. Si falta grasa o proteína, se conserva esa ausencia y no se presenta una UGP parcial como completa.
 - «Guardar ficha original en la BD» es independiente de aceptar. Conserva la ficha original de Open Food Facts y evita duplicados por código; las correcciones de la revisión se aplican solo a la comida. Los productos guardados y favoritos se recuperan en la búsqueda habitual y abren su revisión en **Escanear producto**, sin añadir hasta la aceptación.
+- Si el código no figura en ninguna de las dos fuentes, se puede crear una ficha manual en Supabase desde el escáner. La información introducida se valida también en el servidor, se comparte en el catálogo público y no se acredita como dato de Open Food Facts ni como ficha nutricional revisada.
 - El catálogo de productos es público y compartido, como el catálogo habitual; no contiene fotos ni registros privados de consumo. La comida, ajustes, favoritos y plantillas siguen siendo locales.
-- Los datos proceden de una base colaborativa: hay que comprobar la etiqueta. Se muestra atribución a [Open Food Facts](https://world.openfoodfacts.org/) y [ODbL](https://opendatacommons.org/licenses/odbl/1-0/). La fecha de consulta no acredita una revisión nutricional.
+- Las fichas importadas de Open Food Facts conservan su atribución y licencia [ODbL](https://opendatacommons.org/licenses/odbl/1-0/). Las fichas de usuario muestran su procedencia manual; hay que comprobar siempre la etiqueta. La fecha de consulta/registro no acredita una revisión nutricional.
 
 ### Activación del guardado remoto
 
-El código cliente, la función y la migración están implementados. **Publicación aplazada por decisión del usuario: revisar primero en `http://127.0.0.1:3000/index.html?vscode-livepreview=true`, sin push, despliegue ni cambios en la BD remota.** El escaneo, la consulta y la revisión de nutrientes se pueden probar en local sin acceso administrativo.
+Las migraciones y la función están activadas en el proyecto `ncyzseuzetwgeluptqdl` desde el 2026-10-28. El usuario autorizó el push de los cambios del cliente en la misma sesión. Antes de ese envío, GitHub Pages aún servía la interfaz anterior, sin el formulario de alta manual; tras publicar se debe comprobar el shell `v18` y la opción «Añadir este producto a Supabase».
 
-La configuración pública para un futuro despliegue está en `supabase/deploy.env`: origen `https://nonofg.github.io` (sin `/Mi-Insulina/`) y User-Agent identificado con la URL real de la aplicación. No contiene credenciales y no se ha enviado a Supabase.
+La configuración pública de `supabase/deploy.env` ya se envió al proyecto: `APP_ORIGIN=https://nonofg.github.io` (sin `/Mi-Insulina/`) y `OFF_USER_AGENT` identificado con la URL real de la aplicación. El archivo no contiene credenciales. Se confirmó la presencia de `SUPABASE_SECRET_KEYS` en el runtime, sin leer ni publicar sus valores.
 
-Cuando se autorice publicar, seguirá siendo necesario resolver el acceso administrativo al proyecto `ncyzseuzetwgeluptqdl`: la sesión CLI comprobada devuelve **HTTP 403 por permisos insuficientes**. No se ha aplicado la migración ni desplegado la función, ni se ha cambiado a otra BD. La aplicación no finge un guardado remoto cuando el servicio no está disponible.
+Verificación remota: las dos versiones aparecen aplicadas en el historial de migraciones; tabla vacía con RLS activo y restricción de procedencia manual; SELECT público permitido e INSERT denegado para `anon` y `authenticated`, permitido para `service_role`. La función responde 204 al preflight del origen autorizado, 422 a una ficha manual inválida y 403 a un origen no permitido. Lectura REST pública HTTP 200 con cero filas. No se crearon productos de prueba ni se certificó una inserción remota de extremo a extremo. Los pasos siguientes documentan cómo reproducir la activación:
 
-1. Con acceso del propietario a Supabase, aplicar `supabase/migrations/20261016000000_productos_escaneados.sql`. Puede ejecutarse desde el SQL Editor. Si se usa CLI, revisar primero la vinculación y el historial antes de `db push`:
+1. Con acceso del propietario a Supabase, aplicar en orden `supabase/migrations/20261016000000_productos_escaneados.sql` y `supabase/migrations/20261023000000_productos_manuales.sql`. Si la primera ya está aplicada, ejecutar únicamente la segunda. Puede hacerse desde el SQL Editor. Si se usa CLI, revisar primero la vinculación y el historial antes de `db push`:
 
    ```powershell
    npx supabase login
@@ -123,12 +132,12 @@ Cuando se autorice publicar, seguirá siendo necesario resolver el acceso admini
 
    ```powershell
    npx supabase secrets set --project-ref ncyzseuzetwgeluptqdl --env-file supabase/deploy.env
-   npx supabase functions deploy guardar-producto --project-ref ncyzseuzetwgeluptqdl --no-verify-jwt
+   npx supabase functions deploy guardar-producto --project-ref ncyzseuzetwgeluptqdl --no-verify-jwt --use-api
    ```
 
-4. Solo después de aprobar la revisión local, publicar los recursos del cliente indicados arriba bajo HTTPS para el móvil. El shell se actualiza a **v6**. El lector local está en la caché, pero consultar nuevos productos y guardar en Supabase requieren conexión.
+4. Solo después de aprobar la revisión local, publicar los recursos del cliente indicados arriba bajo HTTPS para el móvil. El shell se actualiza a **v18**. El lector local está en la caché, pero consultar nuevos productos y guardar en Supabase requieren conexión.
 
-La función solo admite un código válido y obtiene los datos de Open Food Facts en el servidor; no acepta nutrientes arbitrarios del cliente. La tabla nueva tiene RLS, lectura pública y permisos de inserción solo para el rol de servidor, sin permisos públicos de actualización o borrado. `APP_ORIGIN` restringe el uso desde navegadores, **no es autenticación**: clientes HTTP externos pueden imitar ese origen. El endpoint es una importación pública de fichas nutricionales públicas, no un guardado privado por usuario.
+La función admite `{ codigo_barras }` para importar la ficha original desde Open Food Facts, o `{ codigo_barras, producto_manual: { nombre, unidad_cantidad, carbs_100g, grasas_100g, proteinas_100g } }` para un alta de etiqueta. El servidor valida código, nombre, unidades y nutrientes; asigna la procedencia manual y rechaza campos extra. La tabla conserva RLS, lectura pública e inserción solo para el rol de servidor, sin UPDATE/DELETE públicos. Los códigos existentes nunca se sobrescriben. `APP_ORIGIN` restringe navegadores, **no es autenticación**: clientes HTTP externos pueden imitarlo. Es un catálogo público compartido; los datos manuales pueden ser erróneos y se identifican como no verificados, no como fichas privadas ni datos de OFF.
 
 Referencia de integración: [API de Open Food Facts](https://openfoodfacts.github.io/documentation/docs/Product-Opener/api/), [esquema de productos y cantidades](https://openfoodfacts.github.io/documentation/docs/Product-Opener/schemas/schemas/product/) y [claves de Supabase](https://supabase.com/docs/guides/getting-started/api-keys). La API puede limitar consultas y el navegador no puede establecer un User-Agent propio; el guardado de servidor sí usa el configurado. No se ha dado de alta la aplicación en el formulario de uso del proveedor ni inventado un contacto.
 

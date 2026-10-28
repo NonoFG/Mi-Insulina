@@ -22,9 +22,12 @@ export function initProductScanner({ onAccept, onSaved, getEquivalencia }) {
   const botonDetenerCamara = $("detener-camara");
   const estadoCamara = $("estado-camara");
   let pendiente = null;
+  const productoNoEncontrado = $("producto-no-encontrado");
+  let codigoNoEncontrado = null;
   let consulta = null;
   let generacion = 0;
   let camaraActiva = false;
+  let avisoSinLectura = null;
 
   function errorCampo(id, mensaje) {
     const input = $(id);
@@ -34,7 +37,7 @@ export function initProductScanner({ onAccept, onSaved, getEquivalencia }) {
     else input.removeAttribute("aria-invalid");
   }
 
-  function leerRevision(mostrarErrores = false) {
+  function leerRevision(mostrarErrores = false, incluirCantidad = true) {
     if (!pendiente) return null;
     let valido = true;
     let primerError = null;
@@ -45,8 +48,10 @@ export function initProductScanner({ onAccept, onSaved, getEquivalencia }) {
     const nombre = $("producto-nombre").value.trim();
     validar("producto-nombre", nombre ? "" : "Indica el nombre del producto.");
     const cantidad = numeroFinito($("producto-cantidad").value);
-    validar("producto-cantidad", $("producto-cantidad").validity.badInput || cantidad === null || cantidad <= 0
-      ? "Indica la cantidad que vas a consumir, mayor que cero." : "");
+    if (incluirCantidad) {
+      validar("producto-cantidad", $("producto-cantidad").validity.badInput || cantidad === null || cantidad <= 0
+        ? "Indica la cantidad que vas a consumir, mayor que cero." : "");
+    }
     const nutrientes = {};
     for (const [campo, propiedad] of [["hc", "carbs_100g"], ["grasas", "grasas_100g"], ["proteinas", "proteinas_100g"]]) {
       const input = $(`producto-${campo}`);
@@ -67,7 +72,7 @@ export function initProductScanner({ onAccept, onSaved, getEquivalencia }) {
         ...original,
         ...nutrientes,
         nombre,
-        fuente: editado ? "Open Food Facts; valores editados para esta comida por el usuario" : original.fuente,
+        fuente: editado ? `${original.fuente}; valores editados para esta comida por el usuario` : original.fuente,
       },
     };
   }
@@ -87,6 +92,8 @@ export function initProductScanner({ onAccept, onSaved, getEquivalencia }) {
   }
 
   function cerrarPanelCamara() {
+    clearTimeout(avisoSinLectura);
+    avisoSinLectura = null;
     camaraActiva = false;
     panelCamara.hidden = true;
     activarCamara.disabled = false;
@@ -94,6 +101,8 @@ export function initProductScanner({ onAccept, onSaved, getEquivalencia }) {
   }
 
   function detenerConsulta() {
+    productoNoEncontrado.hidden = true;
+    codigoNoEncontrado = null;
     generacion += 1;
     consulta?.abort();
     consulta = null;
@@ -139,6 +148,12 @@ export function initProductScanner({ onAccept, onSaved, getEquivalencia }) {
           if (actual !== generacion || consulta !== controller || !camaraActiva) return;
           estadoCamara.textContent = "Cámara activa. Enfoca un código de barras dentro del recuadro.";
           estado.textContent = "La cámara se apagará al detectar un código válido. Todavía no se ha añadido nada.";
+          avisoSinLectura = setTimeout(() => {
+            if (actual !== generacion || consulta !== controller || !camaraActiva) return;
+            const mensaje = "No se ha podido leer el código de barras. Acerca el envase, mejora la luz o escribe el código manualmente. La cámara sigue buscando; esto no significa que el producto no esté en la base de datos.";
+            estadoCamara.textContent = mensaje;
+            estado.textContent = mensaje;
+          }, 12000);
         },
       });
       if (actual !== generacion || consulta !== controller || !camaraActiva) return;
@@ -163,6 +178,10 @@ export function initProductScanner({ onAccept, onSaved, getEquivalencia }) {
   });
   botonDetenerCamara.addEventListener("click", () => {
     if (detenerCamara()) activarCamara.focus({ preventScroll: true });
+  });
+  $("escribir-codigo-producto").addEventListener("click", () => {
+    detenerCamara("No se ha leído ningún producto. Escribe los números del código de barras y pulsa «Consultar producto».");
+    codigo.focus();
   });
   document.addEventListener("keydown", (evento) => {
     if (evento.key === "Escape" && camaraActiva) {
@@ -189,11 +208,14 @@ export function initProductScanner({ onAccept, onSaved, getEquivalencia }) {
     estadoCamara.textContent = "Cámara detenida al cambiar a la entrada manual.";
   });
 
-  function reviewProduct(product, { saved = false, storageAvailable = true } = {}) {
+  function reviewProduct(product, { saved = false, manual = false } = {}) {
     detenerConsulta();
-    pendiente = { product: { ...product }, saved, saving: false };
+    pendiente = { product: { ...product }, saved, saving: false, manual };
     revision.hidden = false;
     codigo.value = product.codigo_barras;
+    $("campo-producto-unidad").hidden = !manual;
+    $("producto-unidad").value = product.unidad_cantidad;
+    $("titulo-revision-producto").textContent = manual ? "Añadir producto a Supabase" : "Revisa antes de añadir";
     $("producto-nombre").value = product.nombre;
     $("producto-hc").value = product.carbs_100g ?? "";
     $("producto-grasas").value = product.grasas_100g ?? "";
@@ -204,14 +226,19 @@ export function initProductScanner({ onAccept, onSaved, getEquivalencia }) {
     $("producto-base").textContent = `Valores nutricionales por 100 ${product.unidad_cantidad}. La cantidad a consumir se indica debajo.`;
     $("etiqueta-producto-cantidad").textContent = `Cantidad a consumir (${product.unidad_cantidad}):`;
     $("ayuda-producto-cantidad").textContent = `${product.descripcion_cantidad || "No se conoce una porción: indica cuánto vas a consumir."} Revisa siempre la cantidad sugerida; no es una recomendación de consumo.`;
-    const fecha = new Date(product.consultado_en);
-    $("origen-producto").textContent = `Código ${product.codigo_barras}${product.marca ? ` · ${product.marca}` : ""}. Fuente: Open Food Facts${Number.isFinite(fecha.getTime()) ? `. Consultado: ${fecha.toLocaleDateString("es-ES")}` : ""}. La fecha de consulta no acredita una revisión nutricional.`;
-    $("enlace-producto").href = `https://world.openfoodfacts.org/product/${encodeURIComponent(product.codigo_barras)}`;
+    const fecha = new Date(product.consultado_en || NaN);
+    $("origen-producto").textContent = `Código ${product.codigo_barras}${product.marca ? ` · ${product.marca}` : ""}. Fuente: ${product.fuente}${Number.isFinite(fecha.getTime()) ? `. Registrado/consultado: ${fecha.toLocaleDateString("es-ES")}` : ""}. La fecha no acredita una revisión nutricional.`;
+    $("enlace-producto").hidden = product.fuente !== "Open Food Facts";
+    if (product.fuente === "Open Food Facts") $("enlace-producto").href = product.fuente_url;
+    else $("enlace-producto").removeAttribute("href");
     guardar.disabled = saved;
-    guardar.textContent = saved ? "Ficha ya guardada en la BD" : "Guardar ficha original en la BD";
-    estadoGuardar.textContent = saved ? "Producto disponible en el catálogo guardado." : storageAvailable
-      ? "" : "La BD de productos no está disponible o todavía no está configurada. Puedes revisar y añadir a la comida; guardar requiere el servidor de Supabase.";
-    estado.textContent = "Producto encontrado. Revisa la etiqueta y la cantidad antes de aceptar.";
+    guardar.textContent = saved ? "Ficha ya guardada en la BD" : manual ? "Guardar producto en Supabase" : "Guardar ficha original en la BD";
+    $("ayuda-guardar-producto").textContent = manual
+      ? "Guardar en Supabase requiere nombre, unidad e hidratos de la etiqueta. Grasas y proteínas vacías significan desconocidas. No necesitas indicar una cantidad a consumir para guardar, ni se añade nada a la comida."
+      : "Guardar no añade nada a la comida. Las fichas de Open Food Facts se guardan sin los cambios de esta revisión. Los datos introducidos por usuarios no están verificados.";
+    estadoGuardar.textContent = saved ? "Producto disponible en el catálogo guardado." : "";
+    estado.textContent = manual ? "Completa la etiqueta para guardar este código en Supabase. No se ha añadido nada a la comida."
+      : "Producto encontrado. Revisa la etiqueta y la cantidad antes de aceptar.";
     updatePreview();
     $("titulo-revision-producto").focus();
   }
@@ -239,7 +266,12 @@ export function initProductScanner({ onAccept, onSaved, getEquivalencia }) {
       if (actual !== generacion || controller.signal.aborted) return;
       const mensaje = error instanceof Error ? error.message : "No se pudo consultar el producto.";
       estado.textContent = mensaje;
-      if (!archivo) errorCampo("codigo-producto", mensaje);
+      if (error?.code === "product_not_found") {
+        estado.textContent = `${mensaje} Puedes añadirlo a Supabase con los datos de la etiqueta.`;
+        codigoNoEncontrado = codigo.value;
+        productoNoEncontrado.hidden = false;
+      }
+      if (!archivo && error?.code !== "product_not_found") errorCampo("codigo-producto", mensaje);
     } finally {
       if (actual === generacion) {
         consulta = null;
@@ -275,6 +307,32 @@ export function initProductScanner({ onAccept, onSaved, getEquivalencia }) {
     estado.textContent = "Producto descartado. No se ha añadido a la comida.";
     codigo.focus();
   });
+  $("anadir-producto-supabase").addEventListener("click", () => {
+    if (!codigoNoEncontrado) return;
+    reviewProduct({
+      id: `barcode:${codigoNoEncontrado}`,
+      codigo_barras: codigoNoEncontrado,
+      nombre: "",
+      marca: null,
+      carbs_100g: null,
+      grasas_100g: null,
+      proteinas_100g: null,
+      unidad_cantidad: "g",
+      cantidad_sugerida: null,
+      descripcion_cantidad: "Indica cuánto vas a consumir solo si quieres añadirlo a la comida.",
+      fuente: "Usuario (etiqueta; sin verificar)",
+      fuente_url: null,
+      consultado_en: null,
+    }, { manual: true });
+    $("producto-nombre").focus();
+  });
+  $("producto-unidad").addEventListener("change", () => {
+    if (!pendiente?.manual) return;
+    pendiente.product.unidad_cantidad = $("producto-unidad").value;
+    $("producto-base").textContent = `Valores nutricionales por 100 ${pendiente.product.unidad_cantidad}.`;
+    $("etiqueta-producto-cantidad").textContent = `Cantidad a consumir (${pendiente.product.unidad_cantidad}):`;
+    updatePreview();
+  });
   $("form-aceptar-producto").addEventListener("input", updatePreview);
   $("form-aceptar-producto").addEventListener("submit", (evento) => {
     evento.preventDefault();
@@ -289,14 +347,34 @@ export function initProductScanner({ onAccept, onSaved, getEquivalencia }) {
   guardar.addEventListener("click", async () => {
     const actual = pendiente;
     if (!actual || actual.saved || actual.saving) return;
+    let manualProduct;
+    if (actual.manual) {
+      const datos = leerRevision(true, false);
+      if (!datos) return;
+      manualProduct = {
+        nombre: datos.product.nombre,
+        unidad_cantidad: datos.product.unidad_cantidad,
+        carbs_100g: datos.product.carbs_100g,
+        grasas_100g: datos.product.grasas_100g,
+        proteinas_100g: datos.product.proteinas_100g,
+      };
+    }
     actual.saving = true;
     guardar.disabled = true;
-    estadoGuardar.textContent = "Guardando la ficha original en la BD…";
+    estadoGuardar.textContent = actual.manual ? "Guardando los datos de la etiqueta en Supabase…" : "Guardando la ficha original en la BD…";
     try {
-      const product = await saveProduct(actual.product.codigo_barras);
+      const product = await saveProduct(actual.product.codigo_barras, { manualProduct });
       onSaved(product);
       actual.saved = true;
       if (pendiente !== actual) return;
+      if (actual.manual) {
+        const cantidad = $("producto-cantidad").value;
+        reviewProduct(product, { saved: true });
+        $("producto-cantidad").value = cantidad;
+        updatePreview();
+        estadoGuardar.textContent = "Código disponible en Supabase. Se muestra la ficha guardada; si el código ya existía, se ha conservado sin sobrescribirlo. No se ha añadido nada a la comida.";
+        return;
+      }
       guardar.textContent = "Ficha ya guardada en la BD";
       estadoGuardar.textContent = "Ficha original guardada en la BD. Esto no la añade a la comida.";
     } catch (error) {

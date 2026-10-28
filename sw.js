@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "mi-insulina-shell-";
-const CACHE_NAME = `${CACHE_PREFIX}v16`;
+const CACHE_NAME = `${CACHE_PREFIX}v18`;
 const SHELL_FILES = [
   "./",
   "./index.html",

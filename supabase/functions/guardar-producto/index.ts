@@ -1,4 +1,4 @@
-import { normalizeBarcode, normalizeOpenFoodFacts, ProductDataError } from "../../../product-data.js";
+import { normalizeBarcode, normalizeOpenFoodFacts, normalizeManualProduct, ProductDataError } from "../../../product-data.js";
 
 type HandlerDependencies = {
   env?: (name: string) => string | undefined;
@@ -124,20 +124,20 @@ export function createHandler(dependencies: HandlerDependencies = {}) {
       return jsonResponse({ code: "method_not_allowed", error: "Usa una solicitud POST para guardar el producto." }, 405, origin, allowedOrigin);
     }
     if (!request.headers.get("Content-Type")?.toLowerCase().startsWith("application/json")) {
-      return jsonResponse({ code: "invalid_request", error: "La solicitud debe contener únicamente un código de barras en formato JSON." }, 400, origin, allowedOrigin);
+      return jsonResponse({ code: "invalid_request", error: "La solicitud debe contener una ficha de producto en formato JSON." }, 400, origin, allowedOrigin);
     }
 
     let body: unknown;
     try {
       body = await request.json();
     } catch {
-      return jsonResponse({ code: "invalid_request", error: "No se pudo leer el código de barras de la solicitud." }, 400, origin, allowedOrigin);
+      return jsonResponse({ code: "invalid_request", error: "No se pudo leer la ficha de producto de la solicitud." }, 400, origin, allowedOrigin);
     }
     if (body === null || typeof body !== "object" || Array.isArray(body)
-      || Object.keys(body).length !== 1
+      || Object.keys(body).some((key) => key !== "codigo_barras" && key !== "producto_manual")
       || !("codigo_barras" in body)
       || typeof body.codigo_barras !== "string") {
-      return jsonResponse({ code: "invalid_request", error: "La solicitud solo puede incluir un código de barras válido." }, 400, origin, allowedOrigin);
+      return jsonResponse({ code: "invalid_request", error: "La solicitud debe incluir un código válido y, opcionalmente, los datos manuales de su etiqueta." }, 400, origin, allowedOrigin);
     }
 
     let code: string;
@@ -148,6 +148,17 @@ export function createHandler(dependencies: HandlerDependencies = {}) {
         ? error
         : new ProductDataError("invalid_barcode", "El código de barras no es válido.");
       return jsonResponse({ code: failure.code, error: failure.message }, productErrorStatus(failure.code), origin, allowedOrigin);
+    }
+    let manualProduct: Record<string, unknown> | null = null;
+    if ("producto_manual" in body) {
+      try {
+        manualProduct = normalizeManualProduct(body.producto_manual, code);
+      } catch (error) {
+        const failure = error instanceof ProductDataError
+          ? error
+          : new ProductDataError("invalid_manual_product", "La ficha manual no es válida.");
+        return jsonResponse({ code: failure.code, error: failure.message }, productErrorStatus(failure.code), origin, allowedOrigin);
+      }
     }
 
     const supabaseUrl = readEnv("SUPABASE_URL")?.replace(/\/+$/, "");
@@ -205,60 +216,65 @@ export function createHandler(dependencies: HandlerDependencies = {}) {
       return jsonResponse({ product: productResponse(existing.product) }, 200, origin, allowedOrigin);
     }
 
-    const userAgent = readEnv("OFF_USER_AGENT")?.trim();
-    if (!userAgent) {
-      return jsonResponse({ code: "server_configuration", error: "Falta configurar OFF_USER_AGENT con el contacto real de la aplicación." }, 500, origin, allowedOrigin);
-    }
-    const offQuery = new URLSearchParams({ fields: OFF_FIELDS });
-    // Debe coincidir con el contrato nutricional *_100g que consume products.js.
-    const offUrl = `https://world.openfoodfacts.org/api/v3.4/product/${encodeURIComponent(code)}.json?${offQuery}`;
-    let offResponse: Response;
-    try {
-      offResponse = await requestFetch(offUrl, {
-        method: "GET",
-        headers: { Accept: "application/json", "User-Agent": userAgent },
-        signal: request.signal,
-      });
-    } catch {
-      return jsonResponse({ code: "source_unavailable", error: "No se pudo conectar con Open Food Facts." }, 502, origin, allowedOrigin);
-    }
-    if (offResponse.status === 404) {
-      return jsonResponse({ code: "product_not_found", error: "No se encontró este producto en Open Food Facts." }, 404, origin, allowedOrigin);
-    }
-    if (!offResponse.ok) {
-      const status = offResponse.status === 429 ? 429 : 502;
-      return jsonResponse({ code: "source_unavailable", error: "Open Food Facts no está disponible en este momento." }, status, origin, allowedOrigin);
-    }
+    let row: Record<string, unknown>;
+    if (manualProduct) {
+      row = { ...manualProduct, registro_off: null };
+    } else {
+      const userAgent = readEnv("OFF_USER_AGENT")?.trim();
+      if (!userAgent) {
+        return jsonResponse({ code: "server_configuration", error: "Falta configurar OFF_USER_AGENT con el contacto real de la aplicación." }, 500, origin, allowedOrigin);
+      }
+      const offQuery = new URLSearchParams({ fields: OFF_FIELDS });
+      // Debe coincidir con el contrato nutricional *_100g que consume products.js.
+      const offUrl = `https://world.openfoodfacts.org/api/v3.4/product/${encodeURIComponent(code)}.json?${offQuery}`;
+      let offResponse: Response;
+      try {
+        offResponse = await requestFetch(offUrl, {
+          method: "GET",
+          headers: { Accept: "application/json", "User-Agent": userAgent },
+          signal: request.signal,
+        });
+      } catch {
+        return jsonResponse({ code: "source_unavailable", error: "No se pudo conectar con Open Food Facts." }, 502, origin, allowedOrigin);
+      }
+      if (offResponse.status === 404) {
+        return jsonResponse({ code: "product_not_found", error: "No se encontró este producto en Open Food Facts." }, 404, origin, allowedOrigin);
+      }
+      if (!offResponse.ok) {
+        const status = offResponse.status === 429 ? 429 : 502;
+        return jsonResponse({ code: "source_unavailable", error: "Open Food Facts no está disponible en este momento." }, status, origin, allowedOrigin);
+      }
 
-    let payload: unknown;
-    try {
-      payload = await offResponse.json();
-    } catch {
-      return jsonResponse({ code: "source_unavailable", error: "Open Food Facts devolvió una respuesta que no se pudo leer." }, 502, origin, allowedOrigin);
-    }
+      let payload: unknown;
+      try {
+        payload = await offResponse.json();
+      } catch {
+        return jsonResponse({ code: "source_unavailable", error: "Open Food Facts devolvió una respuesta que no se pudo leer." }, 502, origin, allowedOrigin);
+      }
 
-    let product: Record<string, unknown>;
-    try {
-      product = normalizeOpenFoodFacts(payload, code) as Record<string, unknown>;
-    } catch (error) {
-      const failure = error instanceof ProductDataError
-        ? error
-        : new ProductDataError("incomplete_product", "Open Food Facts no devolvió una ficha de producto completa.");
-      return jsonResponse({ code: failure.code, error: failure.message }, productErrorStatus(failure.code), origin, allowedOrigin);
-    }
+      let product: Record<string, unknown>;
+      try {
+        product = normalizeOpenFoodFacts(payload, code) as Record<string, unknown>;
+      } catch (error) {
+        const failure = error instanceof ProductDataError
+          ? error
+          : new ProductDataError("incomplete_product", "Open Food Facts no devolvió una ficha de producto completa.");
+        return jsonResponse({ code: failure.code, error: failure.message }, productErrorStatus(failure.code), origin, allowedOrigin);
+      }
 
-    if (!payload || typeof payload !== "object" || Array.isArray(payload) || !("product" in payload)) {
-      return jsonResponse({ code: "incomplete_product", error: "Open Food Facts no devolvió el registro original del producto." }, 422, origin, allowedOrigin);
+      if (!payload || typeof payload !== "object" || Array.isArray(payload) || !("product" in payload)) {
+        return jsonResponse({ code: "incomplete_product", error: "Open Food Facts no devolvió el registro original del producto." }, 422, origin, allowedOrigin);
+      }
+      const originalProduct = payload.product;
+      if (!originalProduct || typeof originalProduct !== "object" || Array.isArray(originalProduct)) {
+        return jsonResponse({ code: "incomplete_product", error: "Open Food Facts no devolvió el registro original del producto." }, 422, origin, allowedOrigin);
+      }
+      const canonicalRecord = originalProduct as Record<string, unknown>;
+      row = {
+        ...product,
+        registro_off: canonicalRecord,
+      };
     }
-    const originalProduct = payload.product;
-    if (!originalProduct || typeof originalProduct !== "object" || Array.isArray(originalProduct)) {
-      return jsonResponse({ code: "incomplete_product", error: "Open Food Facts no devolvió el registro original del producto." }, 422, origin, allowedOrigin);
-    }
-    const canonicalRecord = originalProduct as Record<string, unknown>;
-    const row = {
-      ...product,
-      registro_off: canonicalRecord,
-    };
     let insertResponse: Response;
     try {
       insertResponse = await requestFetch(`${tableUrl}?on_conflict=codigo_barras`, {
